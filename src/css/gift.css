@@ -26,3 +26,10 @@ p {
     margin-right: 15px;
     font-family: Garamond, Times, sans-serif;
 }
+
+#customize {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 10;
+}
