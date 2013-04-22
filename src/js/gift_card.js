@@ -58,7 +58,15 @@ makeRoom = function(x, y, z, angle, id) {
     card.setBg('#fff');
     card.style.borderRadius = '5px';
     card.style.textAlign = 'center';
-    card.textContent = document.location.hash.slice(1);
+
+    var card_title = document.createElement('h1');
+    card_title.id = 'card-title';
+
+    var card_body = document.createElement('div');
+    card_body.id = 'card-body';
+
+    card.appendChild(card_title);
+    card.appendChild(card_body);
 
     room.card = card;
     room.append(card);
@@ -212,7 +220,7 @@ window.addEventListener('load', function(){
     d.setBg('red');
     d.setSz(10, 10);
     d.position = vec3(-5, -5, 0);
-    camera.append(d);
+//    camera.append(d);
     
     var id = 0;
     var rooms = [];
@@ -271,8 +279,8 @@ window.addEventListener('load', function(){
             handleInput('left');
         } else if (Key.match(ev, Key.RIGHT)) {
             handleInput('right');
-        } else if (Key.match(ev, Key.SPACE)) {
-            handleInput('click');
+//        } else if (Key.match(ev, Key.SPACE)) {
+//            handleInput('click');
         } else if (Key.match(ev, 'z')) {
             handleInput('zoom');
         }
@@ -334,5 +342,13 @@ window.addEventListener('load', function(){
     };
     
     tick();
+
+
+    document.getElementById('edit-title').onchange = function() {
+        document.getElementById('card-title').textContent = this.value;
+    };
+    document.getElementById('edit-body').onchange = function() {
+        document.getElementById('card-body').textContent = this.value;
+    };
     
 }, false);
