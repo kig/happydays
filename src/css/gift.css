@@ -9,8 +9,6 @@ h3 {
     font-weight: normal;
 }
 a {
-    color: black;
-    text-decoration: none;
 }
 .pulltab {
     padding-left: 12px;
@@ -28,8 +26,70 @@ p {
 }
 
 #customize {
+	display: none;
+
     position: absolute;
     top: 20px;
     left: 20px;
     z-index: 10;
+
+	border-radius: 16px;
+	background-color: rgba(255, 255, 255, 0.9);
+    text-align:  center;
+    width: 400px;
+    padding: 32px;
+}
+
+#customize h1 {
+	margin: 0;
+	padding: 0;
+	margin-bottom: 16px;
+}
+
+#customize h2 {
+	margin: 0;
+	padding: 0;
+	margin-bottom: 8px;
+}
+
+#customize h3 {
+	margin: 0;
+	padding: 0;
+}
+
+#customize p {
+	margin: 0;
+	padding: 0;
+	text-align: center;
+	margin-bottom: 8px;
+}
+
+#customize input {
+	border-radius: 19px;
+	text-align: center;
+	width: 80%;
+	height: 32px;
+	font-size: 18px;
+}
+
+.fb-send {
+	top: -4px;
+}
+
+#send-greeting {
+	display: none;
+}
+
+#card-title {
+	text-align: center;
+	font-size: 32px;
+	font-family: Arial;
+}
+
+#card-body p {
+	text-align: center;
+	margin: 0px;
+	margin-bottom: 0.5em;
+	font-size: 26px;
+	font-family: Arial;
 }

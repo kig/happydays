@@ -62,8 +62,13 @@ makeRoom = function(x, y, z, angle, id) {
     var card_title = document.createElement('h1');
     card_title.id = 'card-title';
 
-    var card_body = document.createElement('div');
-    card_body.id = 'card-body';
+    var card_body = E(
+		'div', 
+		{id: 'card-body'},
+		E('P', {id: 'card-body1'}),
+		E('P', {id: 'card-body2'}),
+		E('P', {id: 'card-body3'})
+	);
 
     card.appendChild(card_title);
     card.appendChild(card_body);
@@ -75,7 +80,7 @@ makeRoom = function(x, y, z, angle, id) {
         var m = this.matrix;
         mat4.identity(m);
         if (this.up) {
-            spring(this, 0.3, vec3(-150, -280, -50), 1);
+            spring(this, 0.3, vec3(-150, -380, -50), 1);
             vec3.scale(this.velocity, 0.8);
             vec3.add(this.position, this.velocity);
         } else {
@@ -203,6 +208,7 @@ makeRoom = function(x, y, z, angle, id) {
 };
 
 window.addEventListener('load', function(){
+
     var world = D3();
     world.setTransform(mat4());
     world.setSz(window.innerWidth, window.innerHeight);
@@ -302,7 +308,7 @@ window.addEventListener('load', function(){
     camera.lookAt[1] = r[1];
     camera.lookAt[2] = r[2];
     camera.position[0] = r[0];
-    camera.position[1] = r[1]-400;
+    camera.position[1] = r[1]-300;
     camera.position[2] = r[2]+800;
 
     var tick = function() {
@@ -326,8 +332,8 @@ window.addEventListener('load', function(){
         camera.lookAt[0] += (r[0]-camera.lookAt[0]) * 0.1;
         camera.lookAt[1] += (r[1]-camera.lookAt[1]) * 0.1;
         camera.lookAt[2] += (r[2]-camera.lookAt[2]) * 0.1;
-        camera.position[0] += (r[0]-camera.position[0]) * 0.15;
-        camera.position[1] += (r[1]-camera.position[1]-400*zf) * 0.15;
+        camera.position[0] += (r[0]-camera.position[0]+200*zf*zf) * 0.15;
+        camera.position[1] += (r[1]-camera.position[1]-300*zf) * 0.15;
         camera.position[2] += (r[2]-camera.position[2]+800*zf) * 0.15;
 
         mat4.lookAt(
@@ -344,11 +350,73 @@ window.addEventListener('load', function(){
     tick();
 
 
-    document.getElementById('edit-title').onchange = function() {
-        document.getElementById('card-title').textContent = this.value;
+    E.byId('edit-title').onchange = function() {
+        E.byId('card-title').textContent = this.value;
+		updateHash();
     };
-    document.getElementById('edit-body').onchange = function() {
-        document.getElementById('card-body').textContent = this.value;
+    E.byId('edit-body1').onchange = function() {
+        E.byId('card-body1').textContent = this.value;
+		updateHash();
     };
+    E.byId('edit-body2').onchange = function() {
+        E.byId('card-body2').textContent = this.value;
+		updateHash();
+    };
+    E.byId('edit-body3').onchange = function() {
+        E.byId('card-body3').textContent = this.value;
+		updateHash();
+    };
+
+	var updateCards = function() {
+		E.byId('card-title').appendChild(T(cardContent.t));
+		E.byId('card-body1').appendChild(T(cardContent.b1));
+		E.byId('card-body2').appendChild(T(cardContent.b2));
+		E.byId('card-body3').appendChild(T(cardContent.b3));
+	};
+
+	var updateHash = function() {
+		cardContent.t = E.byId('edit-title').value;
+		cardContent.b1 = E.byId('edit-body1').value;
+		cardContent.b2 = E.byId('edit-body2').value;
+		cardContent.b3 = E.byId('edit-body3').value;
+		document.location.hash = Query.build(cardContent);
+	};
+
+	var u = URL.parse(document.location.toString());
+	var query = u.query;
+	var hash = Query.parse(u.fragment);
+
+	var cardContent = {
+		t: hash.t || query.t || 'Your Title Here',
+		b1: hash.b1 || query.b1 || 'First line here',
+		b2: hash.b2 || query.b2 || 'Second line here',
+		b3: hash.b3 || query.b3 || 'Third line here'
+	};
+
+	if (!(query.t || hash.t)) {
+		handleInput('click');
+		showOverlay();
+	} else {
+		updateCards();
+		hideOverlay();
+	}
     
 }, false);
+
+hideOverlay = function() {
+	E.byId('customize').style.display = 'none';
+};
+
+showOverlay = function() {
+	E.byId('customize').style.display = 'block';
+};
+
+showSend = function() {
+	document.getElementById('write-greeting').style.display = 'none';
+	document.getElementById('send-greeting').style.display = 'block';
+};
+
+showWrite = function() {
+	document.getElementById('write-greeting').style.display = 'block';
+	document.getElementById('send-greeting').style.display = 'none';
+};
