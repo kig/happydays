@@ -211,6 +211,15 @@ window.addEventListener('load', function(){
 
     var world = D3();
     world.setTransform(mat4());
+    var resize = function() {
+        world.setSz(window.innerWidth, window.innerHeight);
+        world.setPerspective(window.innerHeight);
+        var v = vec3(0, -window.innerHeight/2, 0); 
+        v.angle = 0;
+        v.roomObject = roomObject;
+        rooms[0] = v;
+    };
+    window.addEventListener('resize', resize, false);
     world.setSz(window.innerWidth, window.innerHeight);
     world.setPerspective(window.innerHeight);
     world.update();
@@ -234,7 +243,7 @@ window.addEventListener('load', function(){
     var v = vec3(0, -window.innerHeight/2, 0); 
     v.angle = 0;
     v.roomObject = roomObject;
-    rooms[id++] = v;
+    rooms[id] = v;
     camera.append(roomObject);
 
     var currentRoomNumber = 0;        
