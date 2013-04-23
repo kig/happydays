@@ -358,23 +358,15 @@ window.addEventListener('load', function(){
     
     tick();
 
-
-    E.byId('edit-title').onchange = function() {
-        E.byId('card-title').textContent = this.value;
-		updateHash();
+    var editMon = function(name) {
+        var obj = E.byId('edit-'+name);
+        obj.onkeyup = obj.onchange = function() {
+            E.byId('card-'+name).textContent = this.value;
+		    updateHash();
+        };
     };
-    E.byId('edit-body1').onchange = function() {
-        E.byId('card-body1').textContent = this.value;
-		updateHash();
-    };
-    E.byId('edit-body2').onchange = function() {
-        E.byId('card-body2').textContent = this.value;
-		updateHash();
-    };
-    E.byId('edit-body3').onchange = function() {
-        E.byId('card-body3').textContent = this.value;
-		updateHash();
-    };
+    var names = 'title body1 body2 body3'.split(' ');
+    names.forEach(editMon);
 
 	var updateCards = function() {
 		E.byId('card-title').appendChild(T(cardContent.t));
@@ -388,7 +380,7 @@ window.addEventListener('load', function(){
 		cardContent.b1 = E.byId('edit-body1').value;
 		cardContent.b2 = E.byId('edit-body2').value;
 		cardContent.b3 = E.byId('edit-body3').value;
-		document.location.hash = Query.build(cardContent);
+		document.location.replace('#'+Query.build(cardContent));
 	};
 
 	var u = URL.parse(document.location.toString());
