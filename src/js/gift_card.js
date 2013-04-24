@@ -323,7 +323,7 @@ window.addEventListener('load', function(){
     camera.position[2] = r[2]+800;
 
     var tick = function() {
-        stats.update();
+        // stats.update();
         var t = new Date().getTime();
         for (var i=0; i<rooms.length; i++) {
             if (i == currentRoomNumber) {
