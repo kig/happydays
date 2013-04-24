@@ -52,9 +52,10 @@ makeRoom = function(x, y, z, angle, id) {
     room.angle = angle;
     
     var card = D3();
+    var cardWidth = 350;
     card.matrix = mat4();
-    card.position = vec3(-150,0,-50);
-    card.setSz(300,253);
+    card.position = vec3(-cardWidth/2,0,-50);
+    card.setSz(cardWidth,250);
     card.setBg('#fff');
     card.style.borderRadius = '5px';
     card.style.textAlign = 'center';
@@ -80,7 +81,7 @@ makeRoom = function(x, y, z, angle, id) {
         var m = this.matrix;
         mat4.identity(m);
         if (this.up) {
-            spring(this, 0.3, vec3(-150, -380, -50), 1);
+            spring(this, 0.3, vec3(-cardWidth/2, -380, -50), 1);
             vec3.scale(this.velocity, 0.8);
             vec3.add(this.position, this.velocity);
         } else {
@@ -201,6 +202,7 @@ makeRoom = function(x, y, z, angle, id) {
         this.door.setTransform(t);
     };
     
+    room.style.cursor = 'pointer';
     room.addEventListener('click', function() {
         this.toggleOpen();
     }, false);
@@ -208,7 +210,6 @@ makeRoom = function(x, y, z, angle, id) {
 };
 
 window.addEventListener('load', function(){
-
     var world = D3();
     world.setTransform(mat4());
     var resize = function() {
@@ -249,58 +250,11 @@ window.addEventListener('load', function(){
     var currentRoomNumber = 0;        
     var zoomIn = true;
     var handleInput = function(action){
-        if (action == 'down') {
-            if (Math.floor(currentRoomNumber / 10) == 9) {
-                currentRoomNumber -= 90;
-            } else {
-                currentRoomNumber += 10;
-            }
-        } else if (action == 'up') {
-            if (Math.floor(currentRoomNumber / 10) == 0) {
-                currentRoomNumber += 90;
-            } else {
-                currentRoomNumber -= 10;
-            }
-        } else if (action == 'left') {
-            if (currentRoomNumber % 10 == 0) {
-                currentRoomNumber += 9;
-            } else {
-                currentRoomNumber --;
-            }
-        } else if (action == 'right') {
-            if (currentRoomNumber % 10 == 9) {
-                currentRoomNumber -= 9;
-            } else {
-                currentRoomNumber ++;
-            }
-        } else if (action == 'click') {
-            rooms[currentRoomNumber].roomObject.toggleOpen();
-        } else if (action == 'zoom') {
-            zoomIn = !zoomIn;
+        if (action == 'click') {
+            roomObject.toggleOpen();
         }
-        
-        currentRoomNumber = currentRoomNumber % rooms.length;
-        if (currentRoomNumber < 0) 
-            currentRoomNumber += rooms.length;          
     };
-    touchControl(handleInput);
 
-    window.addEventListener('keydown', function(ev) {
-        if (Key.match(ev, Key.DOWN)) {
-            handleInput('down');
-        } else if (Key.match(ev, Key.UP)) {
-            handleInput('up');
-        } else if (Key.match(ev, Key.LEFT)) {
-            handleInput('left');
-        } else if (Key.match(ev, Key.RIGHT)) {
-            handleInput('right');
-//        } else if (Key.match(ev, Key.SPACE)) {
-//            handleInput('click');
-        } else if (Key.match(ev, 'z')) {
-            handleInput('zoom');
-        }
-    }, false);
-   
 /* 
     var stats = new Stats();
 
@@ -377,7 +331,12 @@ window.addEventListener('load', function(){
 		E.byId('card-body3').appendChild(T(cardContent.b3));
 	};
 
-	var updateHash = function() {
+    var enteredSomething = false;
+	window.updateHash = function() {
+        if (!enteredSomething) {
+            if (window._gaq) _gaq.push(['_trackEvent', 'Edit', 'Entered_Text']);
+            enteredSomething = true;
+        }
 		cardContent.t = E.byId('edit-title').value;
 		cardContent.b1 = E.byId('edit-body1').value;
 		cardContent.b2 = E.byId('edit-body2').value;
@@ -390,16 +349,19 @@ window.addEventListener('load', function(){
 	var hash = Query.parse(u.fragment);
 
 	var cardContent = {
-		t: hash.t || query.t || 'Your Title Here',
-		b1: hash.b1 || query.b1 || 'First line here',
-		b2: hash.b2 || query.b2 || 'Second line here',
-		b3: hash.b3 || query.b3 || 'Third line here'
+		t: hash.t || query.t || E.byId('edit-title').value,
+		b1: hash.b1 || query.b1 || E.byId('edit-body1').value,
+		b2: hash.b2 || query.b2 || E.byId('edit-body2').value,
+		b3: hash.b3 || query.b3 || E.byId('edit-body3').value
 	};
 
 	if (!(query.t || hash.t)) {
+        if (window._gaq) _gaq.push(['_trackPageView', 'Edit']);
+		updateCards();
 		handleInput('click');
 		showOverlay();
 	} else {
+        if (window._gaq) _gaq.push(['_trackPageView', 'View']);
 		updateCards();
 		hideOverlay();
 	}
@@ -415,11 +377,25 @@ showOverlay = function() {
 };
 
 showSend = function() {
+    if (window._gaq) _gaq.push(['_trackEvent', 'Edit', 'Show_Send']);
 	document.getElementById('write-greeting').style.display = 'none';
 	document.getElementById('send-greeting').style.display = 'block';
+    window.updateHash();
+    E.byId('share-buttons').innerHTML = (
+        '<div class="fb-send" data-href=""></div>' +
+            '<a href="https://twitter.com/share" class="twitter-share-button" data-text="Hey, I just made a box full of awesome with @PoemYouApp, go check it out and bask in the glory!" data-count="none">Tweet</a>' +
+            '<div class="g-plus" data-action="share" data-annotation="none"></div>' +
+            '<wb:share-button count="n" ></wb:share-button>'
+    );
+    FB.XFBML.parse();
+    WB2.initCustomTag();
+    twttr.widgets.load();
+    gapi.plus.go();
 };
 
 showWrite = function() {
+    if (window._gaq) _gaq.push(['_trackEvent', 'Edit', 'Show_Write']);
 	document.getElementById('write-greeting').style.display = 'block';
 	document.getElementById('send-greeting').style.display = 'none';
+    E.byId('share-buttons').innerHtml = '';
 };

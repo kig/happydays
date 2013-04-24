@@ -4,6 +4,9 @@ html {
     overflow: hidden;
     background: #fef;
 }
+h1,h2 {
+    font-family: Optima, Verdana, sans-serif;
+}
 h3 {
     font-family: Optima, Verdana, sans-serif;
     font-weight: normal;
@@ -73,7 +76,7 @@ p {
 }
 
 .fb-send {
-	top: -4px;
+    text-align:left;
 }
 
 #send-greeting {
@@ -83,13 +86,16 @@ p {
 #card-title {
 	text-align: center;
 	font-size: 32px;
-	font-family: Arial;
+	font-family: Apple Chancery, Comic Sans MS, script;
 }
 
 #card-body p {
 	text-align: center;
 	margin: 0px;
 	margin-bottom: 0.5em;
-	font-size: 26px;
-	font-family: Arial;
+    padding-left: 10px;
+    padding-right: 10px;
+	font-size: 24px;
+    font-style: italic;
+	font-family: Palatino Linotype, Palatino, script;
 }
