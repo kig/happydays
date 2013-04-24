@@ -300,7 +300,8 @@ window.addEventListener('load', function(){
             handleInput('zoom');
         }
     }, false);
-    
+   
+/* 
     var stats = new Stats();
 
     // Align top-left
@@ -309,6 +310,7 @@ window.addEventListener('load', function(){
     stats.domElement.style.top = '0px';
 
     document.body.appendChild( stats.domElement );
+*/
     camera.zf = 1;
 
     var r = rooms[0];
