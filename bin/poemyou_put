@@ -1,0 +1,38 @@
+#!/usr/bin/ruby
+require 'cgi'
+
+idx = ARGV.index("-d")
+if idx
+  Dir.chdir(ARGV[idx+1])
+  ARGV[idx,2] = nil
+end
+
+def esc(s)
+  "'#{s.to_s.gsub("'", "'\\\\''")}'"
+end
+
+ARGV.each{|fn|
+  gzip = false
+  if fn =~ /\.jpe?g$/i
+    params = %("Content-Type: image/jpeg" "Expires: #{CGI.rfc1123_date(Time.now + 3650*86400)}")
+  elsif fn =~ /\.png$/i
+    params = %("Content-Type: image/png" "Expires: #{CGI.rfc1123_date(Time.now + 3650*86400)}")
+  elsif fn =~ /\.gif$/i
+    params = %("Content-Type: image/gif" "Expires: #{CGI.rfc1123_date(Time.now + 3650*86400)}")
+  elsif fn =~ /\.html$/ or not fn.include?(".")
+    gzip = true
+    params = %("Content-Type: text/html; charset=utf-8")
+  elsif fn =~ /\.css$/
+    gzip = true
+    params = %("Content-Type: text/css" "Expires: #{CGI.rfc1123_date(Time.now + 86400)}")
+  elsif fn =~ /\.js$/
+    gzip = true
+    params = %("Content-Type: application/javascript" "Expires: #{CGI.rfc1123_date(Time.now + 86400)}")
+  end
+  STDERR.puts("Uploading #{fn}, #{params}")
+  if gzip
+    system(%(gzip -c #{esc(fn)} | aws --insecureaws put "Content-Encoding: gzip" #{params} www.poemyou.com/#{esc(fn)}))
+  else
+    system(%(aws --insecureaws put #{params} www.poemyou.com #{esc(fn)}))
+  end
+}

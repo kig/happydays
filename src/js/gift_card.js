@@ -1,13 +1,15 @@
-makeWall = function(rot) {
+var wallVec = vec3.create(0,0,-200);
+
+var makeWall = function(rot) {
     var wall = makeQuad(400, 400, 'url(images/box_wall.png)', 'url(images/box_inside_wall.png)');
     var m = mat4.identity();
     mat4.rotateY(m, rot);
-    mat4.translate(m, vec3.create(0, 0, -200));
+    mat4.translate(m, wallVec);
     wall.setTransform(m);
     return wall;
 };
 
-makeConfetti = function(room) {
+var makeConfetti = function(room) {
     var confetti = D3();
     confetti.style.pointerEvents = 'none';
     confetti.setSz(64, 64);
@@ -35,13 +37,13 @@ makeConfetti = function(room) {
 };
 
 var springTmp = vec3.create(0,0,0);
-spring = function(object, springConstant, springPosition, mass) {
+var spring = function(object, springConstant, springPosition, mass) {
     vec3.sub(springPosition, object.position, springTmp);
     vec3.scale(springTmp, springConstant/mass);
     vec3.add(object.velocity, springTmp);
 };
 
-makeRoom = function(x, y, z, angle, id) {
+var makeRoom = function(x, y, z, angle, id) {
     var room = D3();
     room.gravity = true;
     room.position[0] = x;
@@ -93,10 +95,10 @@ makeRoom = function(x, y, z, angle, id) {
     };
 
     var floor = makeQuad(400, 400, 'url(images/box_bottom.png)', 'url(images/box_inside_bottom.png)');
-    floor.setTransform(mat4.translate(mat4.rotateX(mat4(), Math.PI/2), vec3(0,0,-200)));
+    floor.setTransform(mat4.translate(mat4.rotateX(mat4.identity(), Math.PI/2), vec3(0,0,-200)));
 
     var ceil = makeQuad(400, 400, 'url(images/box_inside_top.png)', 'url(images/box_top.png)');
-    ceil.setTransform(mat4.translate(mat4.rotateX(mat4(), Math.PI/2), vec3(0, 0, 200)));
+    ceil.setTransform(mat4.translate(mat4.rotateX(mat4.identity(), Math.PI/2), vec3(0, 0, 200)));
     room.append(
         floor,
         makeWall(0),
@@ -195,12 +197,14 @@ makeRoom = function(x, y, z, angle, id) {
         this.confetti.forEach(function(c) { c.update(); });
         var t = mat4.translate(
             mat4.rotateX( 
-                mat4.translate(this.door.baseTransform, vec3(0, -200, 0), this.door.matrix), 
+                mat4.translate(this.door.baseTransform, this.doorVec, this.door.matrix), 
                 this.door.currentAngle
-            ), vec3(0, 200, 0)
+            ), this.doorVec2
         );
         this.door.setTransform(t);
     };
+    room.doorVec = vec3(0, -200, 0);
+    room.doorVec2 = vec3(0, 200, 0);
     
     room.style.cursor = 'pointer';
     room.addEventListener('click', function() {
@@ -212,10 +216,12 @@ makeRoom = function(x, y, z, angle, id) {
 window.addEventListener('load', function(){
     var world = D3();
     world.setTransform(mat4());
+    var roomVec = vec3(0, 0, 0);
     var resize = function() {
         world.setSz(window.innerWidth, window.innerHeight);
         world.setPerspective(window.innerHeight);
-        var v = vec3(0, -window.innerHeight/2, 0); 
+        var v = roomVec;
+        v[1] = -window.innerHeight/2;
         v.angle = 0;
         v.roomObject = roomObject;
         rooms[0] = v;
@@ -230,6 +236,7 @@ window.addEventListener('load', function(){
     camera.setTransform(mat4()); 
     camera.position = vec3(100, -200, 400);
     camera.lookAt = vec3(0, 0, 0);
+    camera.up = vec3(0,1,0);
     world.append(camera);
 
     var d = D3();
@@ -304,13 +311,16 @@ window.addEventListener('load', function(){
         mat4.lookAt(
             camera.position, 
             camera.lookAt, 
-            vec3(0,1,0),
+            camera.up,
             camera.matrix
         );
-        mat4.translate(camera.matrix, vec3(window.innerWidth/2, window.innerHeight/2, 0), camera.matrix);
+        centerVec[0] = window.innerWidth/2;
+        centerVec[1] = window.innerHeight/2;
+        mat4.translate(camera.matrix, centerVec, camera.matrix);
         camera.setTransform(camera.matrix);
         window.requestAnimFrame(tick);
     };
+    var centerVec = vec3(0,0,0);
     
     tick();
 
@@ -334,7 +344,7 @@ window.addEventListener('load', function(){
     var enteredSomething = false;
 	window.updateHash = function() {
         if (!enteredSomething) {
-            if (window._gaq) _gaq.push(['_trackEvent', 'Edit', 'Entered_Text']);
+            if (window.ga) ga('send', 'event', 'Edit', 'Entered_Text');
             enteredSomething = true;
         }
 		cardContent.t = E.byId('edit-title').value;
@@ -356,46 +366,78 @@ window.addEventListener('load', function(){
 	};
 
 	if (!(query.t || hash.t)) {
-        if (window._gaq) _gaq.push(['_trackPageView', 'Edit']);
+        if (window.ga) ga.push(['_trackPageView', 'Edit']);
 		updateCards();
 		handleInput('click');
 		showOverlay();
 	} else {
-        if (window._gaq) _gaq.push(['_trackPageView', 'View']);
+        if (window.ga) ga.push(['_trackPageView', 'View']);
 		updateCards();
 		hideOverlay();
 	}
+
+/*
+    window.requestAnimFrame(function() {
+        window.requestAnimFrame(function() {
+            console.log("Time to second frame: " + (Date.now() - performance.timing.navigationStart));
+        });
+    });
+*/
+
+    var shareConsidered = false;
+    E.byId('share-buttons').addEventListener('mouseover', function() {
+        if (!shareConsidered) {
+            shareConsidered = true;
+            if (window.ga) ga('send', 'event', 'Edit', 'Share_Mouseover');
+        }
+    }, false);
     
 }, false);
 
-hideOverlay = function() {
+var hideOverlay = function() {
 	E.byId('customize').style.display = 'none';
 };
 
-showOverlay = function() {
+var showOverlay = function() {
 	E.byId('customize').style.display = 'block';
 };
 
-showSend = function() {
-    if (window._gaq) _gaq.push(['_trackEvent', 'Edit', 'Show_Send']);
+var showSend = function() {
+    if (window.ga) ga('send', 'event', 'Edit', 'Show_Send');
 	document.getElementById('write-greeting').style.display = 'none';
 	document.getElementById('send-greeting').style.display = 'block';
     window.updateHash();
+
     E.byId('share-buttons').innerHTML = (
         '<div class="fb-send" data-href=""></div>' +
-            '<a href="https://twitter.com/share" class="twitter-share-button" data-text="Hey, I just made a box full of awesome with @PoemYouApp, go check it out and bask in the glory!" data-count="none">Tweet</a>' +
+            '<a href="https://twitter.com/share" class="twitter-share-button" data-text="Hey, I just made a box full of awesome with @PoemYouApp, go check it out!" data-count="none">Tweet</a>' +
             '<div class="g-plus" data-action="share" data-annotation="none"></div>' +
             '<wb:share-button count="n" ></wb:share-button>'
     );
+    loadButtons();
     FB.XFBML.parse();
     WB2.initCustomTag();
     twttr.widgets.load();
     gapi.plus.go();
 };
 
-showWrite = function() {
-    if (window._gaq) _gaq.push(['_trackEvent', 'Edit', 'Show_Write']);
+var showWrite = function() {
+    if (window.ga) ga('send', 'event', 'Edit', 'Show_Write');
 	document.getElementById('write-greeting').style.display = 'block';
 	document.getElementById('send-greeting').style.display = 'none';
     E.byId('share-buttons').innerHtml = '';
+};
+
+E.loadScript = function(src, id) { 
+    if (E.byId(id)) return;
+    var js, fjs = E.byTag('script')[0];
+    js = E('script', {id: id, src: src});
+    fjs.parentNode.insertBefore(js, fjs);
+};
+
+var loadButtons = function() {
+    E.loadScript("//connect.facebook.net/en_US/all.js#xfbml=1", 'facebook-jssdk');
+    E.loadScript("//platform.twitter.com/widgets.js", 'twitter-wjs');
+    E.loadScript("https://apis.google.com/js/plusone.js", 'google-plusone');
+    E.loadScript("http://tjs.sjs.sinajs.cn/open/api/js/wb.js", 'weibo-wb');
 };
