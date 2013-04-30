@@ -15,6 +15,7 @@ html {
     height: 100%;
     overflow: hidden;
     background: #fef;
+    font-family: Optima, Verdana, sans-serif;
 }
 h1,h2 {
     font-family: Optima, Verdana, sans-serif;
@@ -111,6 +112,25 @@ p {
     font-style: italic;
 	font-family: Palatino Linotype, Palatino, script;
 }
+
+#make-your-own {
+    display: none;
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    width: 100%;
+    text-align: center;
+    -webkit-transition: 0.5s;
+    -moz-transition: 0.5s;
+    transition: 0.5s;
+    opacity: 0;
+    z-index: 1;
+}
+#make-your-own a {
+    text-decoration: none;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.75);
+}
     </style>
     <script src="js/built.js"></script>
   </head>
@@ -133,17 +153,20 @@ p {
               <p><input id="edit-body1" type="text" value="Happy Birthday Dear!"></p>
               <p><input id="edit-body2" type="text" value="Lots of Love and Happy Days~"></p>
               <p><input id="edit-body3" type="text" value="- A Secret Admirer"></p>
-			  <p><button onclick="showSend()">Ok, Done!</button>
+			  <p><button id="ready">Ok, I'm ready to delight!</button>
           </div>
           <div id="send-greeting">
               <h2>Send Your Greeting</h2>
-			  <p><button onclick="showWrite()">No, wait, I need to change it!</button></p>
+			  <p><button id="nowai">No, wait, I need to change something!</button></p>
 			  <br>
 			  <br>
-			  <h3>Click to Send Your Greeting</h3>
+			  <h3>Click below to Send Your Greeting</h3>
 			  <p id="share-buttons">
 			  </p>
           </div>
+      </div>
+      <div id="make-your-own">
+        <a href="/">Click here to make your own greeting</a>
       </div>
 
 <div id="fb-root"></div>

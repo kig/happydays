@@ -1,3 +1,4 @@
+(function(){
 var wallVec = vec3.create(0,0,-200);
 
 var makeWall = function(rot) {
@@ -365,15 +366,26 @@ window.addEventListener('load', function(){
 		b3: hash.b3 || query.b3 || E.byId('edit-body3').value
 	};
 
+    E.byId('ready').onclick = showSend;
+    E.byId('nowai').onclick = showWrite;
+
 	if (!(query.t || hash.t)) {
-        if (window.ga) ga.push(['_trackPageView', 'Edit']);
+        if (window.ga) ga('pageview', 'Edit');
 		updateCards();
 		handleInput('click');
 		showOverlay();
 	} else {
-        if (window.ga) ga.push(['_trackPageView', 'View']);
+        if (window.ga) ga('pageview', 'View');
 		updateCards();
 		hideOverlay();
+        E.byId('make-your-own').style.display = 'block';
+        roomObject.addEventListener('click', function() {
+            setTimeout(function() {
+                var e = E.byId('make-your-own');
+                e.style.opacity = 1;
+                e.style.bottom = '20px';
+            }, 4000);
+        }, false);
 	}
 
 /*
@@ -409,9 +421,9 @@ var showSend = function() {
     window.updateHash();
 
     E.byId('share-buttons').innerHTML = (
-        '<div class="fb-send" data-href=""></div>' +
-            '<a href="https://twitter.com/share" class="twitter-share-button" data-text="Hey, I just made a box full of awesome with @PoemYouApp, go check it out!" data-count="none">Tweet</a>' +
-            '<div class="g-plus" data-action="share" data-annotation="none"></div>' +
+        '<div class="fb-send" data-href=""></div> ' +
+            '<a href="https://twitter.com/share" class="twitter-share-button" data-text="Hey, I just made a box full of awesome with @PoemYouApp, go check it out!" data-count="none">Tweet</a> ' +
+            '<div class="g-plus" data-action="share" data-annotation="none"></div> ' +
             '<wb:share-button count="n" ></wb:share-button>'
     );
     loadButtons();
@@ -441,3 +453,62 @@ var loadButtons = function() {
     E.loadScript("https://apis.google.com/js/plusone.js", 'google-plusone');
     E.loadScript("http://tjs.sjs.sinajs.cn/open/api/js/wb.js", 'weibo-wb');
 };
+
+var ABTest = function() {
+    var i;
+    var sum = 0, weights = [];
+    for (i=0; i<arguments.length; i++) {
+        sum += arguments[i].weight;
+        weights.push(sum);
+    }
+    var r = Math.random() * sum;
+    for (i=0; i<arguments.length; i++) {
+        if (r <= weights[i]) {
+            ga('send', 'event', arguments[i].name);
+            arguments[i].run();
+            return;
+        }
+    }
+};
+
+ABTest(
+    {
+        name: "AdSense",
+        weight: 1,
+        run: function() {}
+    },
+
+    {
+        name: "Amazon Ad",
+        weight: 1,
+        run: function() {}
+    },
+
+    {
+        name: "PayPal Paywall",
+        weight: 1,
+        run: function() {}
+    },
+
+    {
+        name: "PayPal Donate",
+        weight: 1,
+        run: function() {}
+    }
+);
+
+ABTest(
+    {
+        name: "No Gift-giving",
+        weight: 1,
+        run: function() {}
+    },
+
+    {
+        name: "Gift giving",
+        weight: 1,
+        run: function() {}
+    }
+);
+
+})();
