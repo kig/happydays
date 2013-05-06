@@ -1,5 +1,12 @@
-CSS = {
-    mat4ToCSSMatrix : function(mat, dst) {
+E.CSSMatrix = (window.WebKitCSSMatrix || window.MSCSSMatrix || window.CSSMatrix || function() {
+    this.m11 = 1; this.m12 = 0; this.m13 = 0; this.m14 = 0;
+    this.m21 = 0; this.m22 = 1; this.m23 = 0; this.m24 = 0;
+    this.m31 = 0; this.m32 = 0; this.m33 = 1; this.m34 = 0;
+    this.m41 = 0; this.m42 = 0; this.m43 = 0; this.m44 = 1;
+    this.js = true;
+});
+E.CSS = {
+    mat4ToTransform : function(mat, dst) {
         dst.m11 = mat[0];
         dst.m12 = mat[1];
         dst.m13 = mat[2];
@@ -16,6 +23,25 @@ CSS = {
         dst.m42 = mat[13];
         dst.m43 = mat[14];
         dst.m44 = mat[15];
+        if (dst.js) {
+            dst = "matrix3d(" + 
+                dst.m11 + "," +
+                dst.m12 + "," +
+                dst.m13 + "," +
+                dst.m14 + "," +
+                dst.m21 + "," +
+                dst.m22 + "," +
+                dst.m23 + "," +
+                dst.m24 + "," +
+                dst.m31 + "," +
+                dst.m32 + "," +
+                dst.m33 + "," +
+                dst.m34 + "," +
+                dst.m41 + "," +
+                dst.m42 + "," +
+                dst.m43 + "," +
+                dst.m44 + ")";
+        }
         return dst;
     },
     
@@ -30,8 +56,8 @@ CSS = {
     setTransform : function(matrix) {
         this.style.webkitTransformStyle = 'preserve-3d';
         if (!this.cssMatrix)
-            this.cssMatrix = new WebKitCSSMatrix();
-        this.style.webkitTransform = this.mat4ToCSSMatrix(matrix, this.cssMatrix);
+            this.cssMatrix = new E.CSSMatrix();
+        this.style.webkitTransform = this.mat4ToTransform(matrix, this.cssMatrix);
         this.matrix = matrix;
     },
     
@@ -49,14 +75,14 @@ CSS = {
         if (typeof color == 'string')
             this.style.background = color;
         else
-            this.style.background = ColorUtils.colorToStyle(color);
+            this.style.background = E.ColorUtils.colorToStyle(color);
     },
 
     setColor : function(color) {
         if (typeof color == 'string')
             this.style.color = color;
         else
-            this.style.color = ColorUtils.colorToStyle(color);
+            this.style.color = E.ColorUtils.colorToStyle(color);
     },
     
     setFont : function(font) {
@@ -111,12 +137,12 @@ CSS = {
 
 };
 
-D3 = function(){
-    var div = DIV.apply(null, arguments);
+E.D3 = function(){
+    var div = E.DIV.apply(null, arguments);
     this.gravity = true;
     div.style.position = 'absolute';
     div.style.left = div.style.top = '0px';
-    Object.extend(div, CSS);
+    E.extend(div, E.CSS);
     div.velocity = vec3.create(0,0,0);
     div.rotV = vec3.create(0,0,0);
     div.position = vec3.create(0,0,0);
@@ -125,15 +151,15 @@ D3 = function(){
     return div;
 };
 
-TEX = function(bg) {
-    var d = D3();
+E.TEX = function(bg) {
+    var d = E.D3();
     d.style.width = d.style.height = '100%';
     d.setBg(bg);
     return d;
 };
 
-makeQuad = function(w, h, outsideBackground, insideBackground) {
-    var quad = D3();
+E.makeQuad = function(w, h, outsideBackground, insideBackground) {
+    var quad = E.D3();
     quad.setSz(w, h);
     quad.style.left = -w/2 + 'px';
     quad.style.top = -h/2 + 'px';
@@ -141,8 +167,8 @@ makeQuad = function(w, h, outsideBackground, insideBackground) {
         quad.setBg(outsideBackground);
         return quad;
     }
-    var outside = TEX(outsideBackground);
-    var inside = TEX(insideBackground);
+    var outside = E.TEX(outsideBackground);
+    var inside = E.TEX(insideBackground);
     outside.setTransform(mat4.translate(mat4.identity(), vec3.create(0, 0, -0.5)));
     inside.setTransform(mat4.translate(mat4.identity(), vec3.create(0, 0, 0.5)));
     quad.appendChild(outside);

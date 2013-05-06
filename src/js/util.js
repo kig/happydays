@@ -549,13 +549,13 @@ Magi.Colors = {
 
 
 R = function(start, end) {
-  var a = []
-  for (var i=start; i<end; i++) a.push(i)
-  return a
-}
+  var a = [];
+  for (var i=start; i<end; i++) a.push(i);
+  return a;
+};
 Rg = function(start, last) {
-  return R(start, last+1)
-}
+  return R(start, last+1);
+};
 
 /**
   Delete the first instance of obj from the array.
@@ -573,7 +573,7 @@ Array.prototype.deleteFirst = function(obj) {
     }
   }
   return false
-}
+};
 
 Array.prototype.stableSort = function(f) {
   for (var i=0; i<this.length; i++) {
@@ -776,12 +776,12 @@ Array.prototype.sortNum = function() {
 Element.prototype.append = function() {
   for(var i=0; i<arguments.length; i++) {
     if (typeof(arguments[i]) == 'string') {
-      this.appendChild(T(arguments[i]))
+      this.appendChild(T(arguments[i]));
     } else {
-      this.appendChild(arguments[i])
+      this.appendChild(arguments[i]);
     }
   }
-}
+};
 
 // some common helper methods
 
@@ -804,11 +804,11 @@ if (!Function.prototype.bind) {
     @addon
     */
   Function.prototype.bind = function(object) {
-    var t = this
+    var t = this;
     return function() {
-      return t.apply(object, arguments)
-    }
-  }
+      return t.apply(object, arguments);
+    };
+  };
 }
 
 if (!Array.prototype.last) {
@@ -947,7 +947,7 @@ if (!Math.sinh) {
     */
   Math.sinh = function(x) {
     return 0.5 * (Math.exp(x) - Math.exp(-x))
-  }
+  };
   /**
     Returns the inverse hyperbolic sine of x.
 
@@ -957,7 +957,7 @@ if (!Math.sinh) {
     */
   Math.asinh = function(x) {
     return Math.log(x + Math.sqrt(x*x + 1))
-  }
+  };
 }
 if (!Math.cosh) {
   /**
@@ -969,7 +969,7 @@ if (!Math.cosh) {
     */
   Math.cosh = function(x) {
     return 0.5 * (Math.exp(x) + Math.exp(-x))
-  }
+  };
   /**
     Returns the inverse hyperbolic cosine of x.
 
@@ -993,586 +993,4 @@ Math.isPowerOfTwo = function(x) {
   var l = Math.log2(x);
   return (Math.floor(l) == l);
 }
-
-/**
-  Creates and configures a DOM element.
-
-  The tag of the element is given by name.
-
-  If params is a string, it is used as the innerHTML of the created element.
-  If params is a DOM element, it is appended to the created element.
-  If params is an object, it is treated as a config object and merged
-  with the created element.
-
-  If params is a string or DOM element, the third argument is treated
-  as the config object.
-
-  Special attributes of the config object:
-    * content
-      - if content is a string, it is used as the innerHTML of the
-        created element
-      - if content is an element, it is appended to the created element
-    * style
-      - the style object is merged with the created element's style
-
-  @param {String} name The tag for the created element
-  @param params The content or config for the created element
-  @param config The config for the created element if params is content
-  @return The created DOM element
-  */
-E = function(name) {
-  var el = document.createElement(name);
-  for (var i=1; i<arguments.length; i++) {
-    var params = arguments[i];
-    if (typeof(params) == 'string') {
-      el.innerHTML += params;
-    } else if (params.DOCUMENT_NODE) {
-      el.appendChild(params);
-    } else if (params.length) {
-      for (var j=0; j<params.length; j++) {
-        var p = params[j];
-        if (params.DOCUMENT_NODE)
-          el.appendChild(p);
-        else
-          el.innerHTML += p;
-      }
-    } else {
-      if (params.style) {
-        var style = params.style;
-        params = Object.clone(params);
-        delete params.style;
-        Object.forceExtend(el.style, style);
-      }
-      if (params.content) {
-        if (typeof(params.content) == 'string') {
-          el.appendChild(T(params.content));
-        } else {
-          var a = params.content;
-          if (!a.length) a = [a];
-          a.forEach(function(p){ el.appendChild(p); });
-        }
-        params = Object.clone(params)
-        delete params.content
-      }
-      Object.forceExtend(el, params)
-    }
-  }
-  return el;
-}
-// Safari requires each canvas to have a unique id.
-E.lastCanvasId = 0
-/**
-  Creates and returns a canvas element with width w and height h.
-
-  @param {int} w The width for the canvas
-  @param {int} h The height for the canvas
-  @param config Optional config object to pass to E()
-  @return The created canvas element
-  */
-E.canvas = function(w,h,config) {
-  var id = 'canvas-uuid-' + E.lastCanvasId
-  E.lastCanvasId++
-  if (!config) config = {}
-  return E('canvas', Object.extend(config, {id: id, width: w, height: h}))
-}
-
-/**
-  Get element by id. Shortcut for document.getElementById.
-
-  @param {string} id The element id to get.
-  @return The found element or null if no element found.
-*/
-E.byId = function(id) {
-  return document.getElementById(id);
-};
-/**
-  Get elements by class name. Shortcut for document.getElementByClassName.
-  Returns elements in a normal Array.
-
-  @param {string} className The element class name to get.
-  @return An array with all the found elements in it.
-*/
-E.byClass = function(className) {
-  return toArray(document.getElementsByClassName(className));
-};
-/**
-  Get elements by tag name. Shortcut for document.getElementByTagName.
-  Returns elements in a normal Array.
-
-  @param {string} tagName The element tag name to get.
-  @return An array with all the found elements in it.
-*/
-E.byTag = function(tagName) {
-  return toArray(document.getElementsByTagName(tagName));
-};
-
-if (typeof byId == 'undefined')
-  byId = E.byId;
-if (typeof byClass == 'undefined')
-  byClass = E.byClass;
-if (typeof byTag == 'undefined')
-  byTag = E.byTag;
-
-/**
-  Creates a tag-making function. The returned function behaves like
-  E(tagName, ...arguments)
-
-  E.g.
-    var d = E.make('DIV');
-    d("foo", {id: 'bar'});
-  is equivalent to
-    E('DIV', "foo", {id: 'bar'});
-
-  Note that all the tags in E.tags already have shortcut functions defined,
-  for example
-    DIV("foo", {id: 'bar'});
-  and
-    E.DIV("foo", {id: 'bar'});
-
-  @param {string} tagName The element tag name to use.
-  @return A tag-making function.
-*/
-E.make = function(tagName){
-  return (function() {
-    var args = [tagName];
-    for (var i=0; i<arguments.length; i++) args.push(arguments[i]);
-    return E.apply(E, args);
-  });
-}
-E.tags = "a abbr acronym address area audio b base bdo big blockquote body br button canvas caption center cite code col colgroup dd del dfn div dl dt em fieldset form frame frameset h1 h2 h3 h4 h5 h6 head hr html i iframe img input ins kbd label legend li link map meta noframes noscript object ol optgroup option p param pre q s samp script select small span strike strong style sub sup table tbody td textarea tfoot th thead title tr tt u ul var video".toUpperCase().split(" ");
-/*
-  The following creates shortcut functions for creating HTML elements.
-  The shortcuts behave like calling E(tagName, ...arguments).
-
-  E.g.
-    DIV( "Hello, world!", {className : 'hw'} );
-  is equivalent to
-    E('DIV', "Hello, world!", {className : 'hw'} );
-
-  There are also E-namespaced versions of the functions:
-    DIV == E.DIV
-
-  The different input element types are handled in a special fashion:
-    TEXT( 'value', {id : 'foo'} );
-  is equivalent to
-    E('INPUT', {type: 'TEXT', value: 'value'}, {id : 'foo'});
-  If the first argument is not a string, it's parsed the same way as with E:
-    TEXT( {id : 'foo', value : 'bar'} );
-  is equivalent to
-    E('INPUT', {type: 'TEXT'}, {id : 'foo', value : 'bar'});
-
-*/
-(function() {
-  E.tags.forEach(function(t) {
-    window[t] = E[t] = E.make(t);
-  });
-  var makeInput = function(t) {
-    return (function(value) {
-      var args = [{type: t}];
-      var i = 0;
-      if (typeof(value) == 'string') {
-        args[0].value = value;
-        i++;
-      }
-      for (; i<arguments.length; i++) args.push(arguments[i]);
-      return E.INPUT.apply(E, args);
-    });
-  };
-  var inputs = ['SUBMIT', 'TEXT', 'RESET', 'HIDDEN', 'CHECKBOX'];
-  inputs.forEach(function(t) {
-    window[t] = E[t] = makeInput(t);
-  });
-})();
-
-/**
-  Creates a cropped version of an image.
-  Does the cropping by putting the image inside a DIV and using CSS
-  to crop the image to the wanted rectangle.
-
-  @param image The image element to crop.
-  @param {int} x The left side of the crop box.
-  @param {int} y The top side of the crop box.
-  @param {int} w The width of the crop box.
-  @param {int} h The height of the crop box.
-  */
-E.cropImage = function(image, x, y, w, h) {
-  var i = image.cloneNode(false);
-  Object.forceExtend(i.style, {
-    position: 'relative',
-    left: -x + 'px',
-    top : -y + 'px',
-    margin: '0px',
-    padding: '0px',
-    border: '0px'
-  });
-  var e = E('div', {style: {
-    display: 'block',
-    width: w + 'px',
-    height: h + 'px',
-    overflow: 'hidden'
-  }});
-  e.appendChild(i);
-  return e;
-}
-
-/**
-  Shortcut for document.createTextNode.
-
-  @param {String} text The text for the text node
-  @return The created text node
-  */
-T = function(text) {
-  return document.createTextNode(text);
-}
-
-/**
-  Merges the src object's attributes with the dst object, preserving all dst
-  object's current attributes.
-
-  @param dst The destination object
-  @param src The source object
-  @return The dst object
-  @addon
-  */
-Object.conditionalExtend = function(dst, src) {
-  for (var i in src) {
-    if (dst[i] == null)
-      dst[i] = src[i];
-  }
-  return dst;
-}
-
-/**
-  Creates and returns a shallow copy of the src object.
-
-  @param src The source object
-  @return A clone of the src object
-  @addon
-  */
-Object.clone = function(src) {
-  if (!src || src == true)
-    return src;
-  switch (typeof(src)) {
-    case 'string':
-      return Object.extend(src+'', src);
-      break;
-    case 'number':
-      return src;
-      break;
-    case 'function':
-      obj = eval(src.toSource());
-      return Object.extend(obj, src);
-      break;
-    case 'object':
-      if (src instanceof Array) {
-        return Object.extend([], src);
-      } else {
-        return Object.extend({}, src);
-      }
-      break;
-  }
-}
-
-/**
-  Creates and returns an Image object, with source URL set to src and
-  onload handler set to onload.
-
-  @param {String} src The source URL for the image
-  @param {Function} onload The onload handler for the image
-  @return The created Image object
-  @type {Image}
-  */
-Image.load = function(src, onload) {
-  var img = new Image();
-  if (onload)
-    img.onload = onload;
-  img.src = src;
-  return img;
-}
-
-/**
-  Returns true if image is fully loaded and ready for use.
-
-  @param image The image to check
-  @return Whether the image is loaded or not
-  @type {boolean}
-  @addon
-  */
-Object.isImageLoaded = function(image) {
-  if (image.tagName == 'CANVAS') return true;
-  if (image.tagName == 'VIDEO') return image.duration > 0;
-  if (!image.complete) return false;
-  if (image.naturalWidth != null && image.naturalWidth == 0) return false;
-  if (image.width == null || image.width == 0) return false;
-  return true;
-}
-
-/**
-  Sums two objects.
-  */
-Object.sum = function(a,b) {
-  if (a instanceof Array) {
-    if (b instanceof Array) {
-      var ab = [];
-      for (var i=0; i<a.length; i++) {
-        ab[i] = a[i] + b[i];
-      }
-      return ab;
-    } else {
-      return a.map(function(v){ return v + b });
-    }
-  } else if (b instanceof Array) {
-    return b.map(function(v){ return v + a });
-  } else {
-    return a + b;
-  }
-}
-
-/**
-  Substracts b from a.
-  */
-Object.sub = function(a,b) {
-  if (a instanceof Array) {
-    if (b instanceof Array) {
-      var ab = [];
-      for (var i=0; i<a.length; i++) {
-        ab[i] = a[i] - b[i];
-      }
-      return ab;
-    } else {
-      return a.map(function(v){ return v - b });
-    }
-  } else if (b instanceof Array) {
-    return b.map(function(v){ return a - v });
-  } else {
-    return a - b;
-  }
-}
-
-/**
-  Deletes all attributes from an object.
-  */
-Object.clear = function(obj) {
-  for (var i in obj) delete obj[i];
-  return obj;
-}
-
-if (!window.Mouse) Mouse = {};
-/**
-  Returns the coordinates for a mouse event relative to element.
-  Element must be the target for the event.
-
-  @param element The element to compare against
-  @param event The mouse event
-  @return An object of form {x: relative_x, y: relative_y}
-  */
-Mouse.getRelativeCoords = function(element, event) {
-  var xy = {x:0, y:0};
-  var osl = 0;
-  var ost = 0;
-  var el = element;
-  while (el) {
-    osl += el.offsetLeft;
-    ost += el.offsetTop;
-    el = el.offsetParent;
-  }
-  xy.x = event.pageX - osl;
-  xy.y = event.pageY - ost;
-  return xy;
-}
-
-Browser = (function(){
-  var ua = window.navigator.userAgent;
-  var chrome = ua.match(/Chrome\/\d+/);
-  var safari = ua.match(/Safari/);
-  var mobile = ua.match(/Mobile/);
-  var webkit = ua.match(/WebKit\/\d+/);
-  var khtml = ua.match(/KHTML/);
-  var gecko = ua.match(/Gecko/);
-  var ie = ua.match(/Explorer/);
-  if (chrome) return 'Chrome';
-  if (mobile && safari) return 'Mobile Safari';
-  if (safari) return 'Safari';
-  if (webkit) return 'Webkit';
-  if (khtml) return 'KHTML';
-  if (gecko) return 'Gecko';
-  if (ie) return 'IE';
-  return 'UNKNOWN';
-})()
-
-
-Mouse.LEFT = 0;
-Mouse.MIDDLE = 1;
-Mouse.RIGHT = 2;
-
-if (Browser == 'IE') {
-  Mouse.LEFT = 1;
-  Mouse.MIDDLE = 4;
-}
-
-Mouse.state = {}
-window.addEventListener('mousedown', function(ev) {
-  Mouse.state[ev.button] = true;
-}, true);
-window.addEventListener('mouseup', function(ev) {
-  Mouse.state[ev.button] = false;
-}, true);
-
-
-Event = {
-  cancel : function(event) {
-    if (event.preventDefault) event.preventDefault();
-  },
-
-  stop : function(event) {
-    Event.cancel(event);
-    if (event.stopPropagation) event.stopPropagation();
-  }
-}
-
-
-Key = {
-  matchCode : function(event, code) {
-    if (typeof code == 'string') {
-      var codes = code.charCodeAt(0);
-      var codeL = code.toLowerCase().charCodeAt(0);
-      var codeU = code.toUpperCase().charCodeAt(0);
-      return (
-        event.which == codes ||
-        event.which == codeL ||
-        event.which == codeU ||
-        event.keyCode == codes ||
-        event.keyCode == codeL ||
-        event.keyCode == codeU
-      );
-    } else {
-      return (
-        event.which == code ||
-        event.keyCode == code
-      );
-    }
-  },
-
-  match : function(event, key) {
-    for (var i=1; i<arguments.length; i++) {
-      var arg = arguments[i];
-      if (arg == null) continue;
-      if (arg.length != null && typeof arg != 'string') {
-        for (var j=0; j<arg.length; j++) {
-          if (Key.matchCode(event, arg[j])) return true;
-        }
-      } else {
-        if (Key.matchCode(event, arg)) return true;
-      }
-    }
-    return false;
-  },
-
-  isNumber : function(event, key) {
-    var k = event.which || event.keyCode || event.charCode;
-    return k >= Key.N_0 && k <= Key.N_9;
-  },
-
-  number : function(event, key) {
-    var k = event.which || event.keyCode || event.charCode;
-    if (k < Key.N_0 || k > Key.N_9) return NaN;
-    return k - Key.N_0;
-  },
-
-  getString : function(event) {
-    var k = event.which || event.keyCode || event.charCode;
-    return String.fromCharCode(k);
-  },
-
-  N_0: 48,
-  N_1: 49,
-  N_2: 50,
-  N_3: 51,
-  N_4: 52,
-  N_5: 53,
-  N_6: 54,
-  N_7: 55,
-  N_8: 56,
-  N_9: 57,
-
-  SHIFT: 16,
-  CTRL: 17,
-  ALT: 18,
-
-  BACKSPACE: 8,
-  TAB: 9,
-  ENTER: 13,
-  ESC: 27,
-  SPACE: 32,
-  PAGE_UP: 33,
-  PAGE_DOWN: 34,
-  END: 35,
-  HOME: 36,
-  LEFT: 37,
-  UP: 38,
-  RIGHT: 39,
-  DOWN: 40,
-  INSERT: 45,
-  DELETE: 46
-}
-
-
-if (typeof window.Query == 'undefined')
-  window.Query = {};
-Object.extend(window.Query, {
-  parse : function(params) {
-    var obj = {}
-    if (!params) return obj
-    params.split("&").forEach(function(p){
-      var kv = p.replace(/\+/g, " ").split("=").map(decodeURIComponent)
-      obj[kv[0]] = kv[1]
-    })
-    return obj
-  },
-
-  build : function(query) {
-    if (typeof query == 'string') return encodeURIComponent(query)
-    if (query instanceof Array) {
-      a = query
-    } else {
-      var a = []
-      for (var i in query) {
-        if (query[i] != null)
-          a.push([i, query[i]])
-      }
-    }
-    return a.map(function(p){ return p.map(encodeURIComponent).join("=") }).join("&")
-  }
-});
-
-if (typeof window.URL == 'undefined')
-  window.URL = {};
-Object.extend(window.URL, {
-  build : function(base, params, fragment) {
-    return base + (params != null ? '?'+Query.build(params) : '') +
-                  (fragment != null ? '#'+Query.build(fragment) : '')
-  },
-
-  parse : function(url) {
-    var gf = url.split("#");
-    var gp = gf[0].split("?");
-    var base = gp[0];
-    var pr = base.split("://");
-    var protocol = pr[0];
-    var path = pr[1] || pr[0];
-    return {
-      base: base,
-      path: path,
-      protocol: protocol,
-      query: Query.parse(gp[1]),
-      fragment: gf[1],
-      build: URL.__build__
-    };
-  },
-
-  __build__ : function() {
-    return URL.build(this.base, this.query, this.fragment)
-  }
-
-});
 
