@@ -244,7 +244,7 @@ window.addEventListener('load', function(){
 	window.addEventListener('resize', resize, false);
 	resize();
 	world.update();
-	document.body.appendChild(world);
+	E.id('scene').appendChild(world);
 	
 	var camera = E.D3();
 	camera.setTransform(mat4()); 

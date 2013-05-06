@@ -54,8 +54,7 @@
 			position: absolute;
 			top: 20px;
 			left: 20px;
-			z-index: 10000;
-			-webkit-transform: translateZ(10000px);
+			z-index: 2;
 
 			border-radius: 12px;
 			background:white;
@@ -237,17 +236,25 @@
 			margin: 0;
 			padding: 0;
 			}
+			#scene {
+			position:absolute;
+			left:0px;
+			top:0px;
+			width:100%;
+			height:100%;
+			overflow:hidden;
+			}
 		</style>
 	</head>
 	<body>
 		<div style="display:none;">
+			<img src="images/clover.png">
 			<img src="images/box_bottom.png">
 			<img src="images/box_inside_bottom.png">
 			<img src="images/box_inside_top.png">
 			<img src="images/box_inside_wall.png">
 			<img src="images/box_top.png">
 			<img src="images/box_wall.png">
-			<img src="images/clover.png">
 		</div>
 		<div id="customize">
 			<div id="write-greeting">
@@ -288,6 +295,7 @@
 				<button onclick="ga('send', 'event', 'Not Supported Get Email Updates');">Get Email Updates</button>
 			</a>
 		</div>
+		<div id="scene"></div>
 		<div id="fb-root"></div>
 		<!-- GA -->
 		<script>
