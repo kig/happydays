@@ -359,12 +359,18 @@ window.addEventListener('load', function(){
 		cardContent.b1 = E.id('edit-body1').value;
 		cardContent.b2 = E.id('edit-body2').value;
 		cardContent.b3 = E.id('edit-body3').value;
-		window.shareLocation = 'http://www.poemyou.com/'+('#'+E.Query.build(cardContent));
+		window.shareLocation = 'http://www.poemyou.com/'+('#'+btoa(E.Query.build(cardContent)));
 	};
 
 	var u = E.URL.parse();
 	var query = u.query;
 	var hash = E.Query.parse(u.fragment);
+	if (hash.t === undefined && query.t === undefined) {
+		try {
+			var plain = atob(u.fragment);
+			hash = E.Query.parse(plain);
+		} catch(e) {}
+	}
 
 	var cardContent = {
 		t: hash.t || query.t || E.id('edit-title').value,
@@ -482,13 +488,19 @@ var showSend = function() {
 
 	var u = window.shareLocation;
 
-	E.id('share-buttons').innerHTML = (
-		'<div class="fb-send" data-href="'+u.replace(/#/, '?')+'"></div> ' +
-			//'<a href="https://twitter.com/share" class="twitter-share-button" data-url="'+u+'" data-text="Hey, I just made a box full of awesome with @PoemYouApp, go check it out" data-count="none">Tweet</a> ' +
-			'<div class="g-plus" data-action="share" data-annotation="none" data-href="'+u+'"></div> ' + 
+	var share =E.id('share-buttons');
+	share.innerHTML = (
+		//'<div class="fb-like" data-send="true" data-width="450" data-show-faces="true" data-href="'+u.replace(/#/, '?')+'"></div><br>' +
+			'<div class="g-plus" data-action="share" data-height="24" data-href="'+u+'"></div><br>' + 
+			//'<a href="https://twitter.com/share" class="twitter-share-button" data-url="'+u+'" data-text="Hey, I just made a box full of awesome with @PoemYouApp, go check it out">Tweet</a> ' +
+			'<h4>Or copy the link below:</h4>'+
+			'<input value="'+u+'" style="padding-left:10px;padding-right:10px;margin-bottom:20px;display:block;">'+
 			''
 			//'<wb:share-button class="weibo-button" count="n" type="button" size="small" url="'+u+'"></wb:share-button>'
 	);
+	E.tag('input', share)[0].onmouseup = function() {
+		this.select();
+	};
 	loadButtons();
 	try { FB.XFBML.parse(); } catch(e) {}
 	//try { WB2.initCustomTag(); } catch(e) {}
@@ -611,38 +623,6 @@ var ABTest = function(name, options) {
 
 ABTest("Promo", [
 	{
-		weight: 1,
-		run: function() {}
-	},
-
-	{
-		name: "Hangout Promo",
-		weight: 1,
-		run: function() {
-			onSendCallbacks.push(function() {
-				var d = E(
-					'div',
-					E('h3', 'Tip #1: Remember to say hello!'),
-//					  E('a', {href: "http://www.google.com/+/learnmore/hangouts/", target: "_blank"}, 
-//						E('img', {src: "http://www.google.com/+/images/learnmore/hangouts/feat-chat.png", width: "320", height: "194"})
-//					   ),
-					E('h4', 
-					  "How about doing a ", 
-					  E('a', {href: "http://www.google.com/+/learnmore/hangouts/", target: "_blank"}, "video call"),
-					  " to follow up on your card. It's always fun to hear from you!"
-					 )
-				);
-				d.style.opacity = 0;
-				d.style.webkitTransition = d.style.MozTransition = d.style.transition = '2s';
-				setTimeout(function() {
-					d.style.opacity = 1;
-				}, 3000);
-				E.id('share-buttons').appendChild(d);
-			});
-		}
-	},
-
-	{
 		name: "Amazon Gift Card",
 		weight: 1,
 		run: function() {
@@ -668,7 +648,12 @@ ABTest("Promo", [
 				d.append(
 					E('h3', 'Would you also like to send a gift?'),
 					ad,
-					E('h4', 'Show your love with an <a href="'+linkCode+'">Amazon Gift Card</a>')
+					E('h4', 'Show your love with an <a href="'+linkCode+'">Amazon Gift Card</a>.'),
+					E('h4', 
+					  "And how about doing a ", 
+					  E('a', {href: "http://www.google.com/+/learnmore/hangouts/", target: "_blank"}, "video call"),
+					  " to follow up on your card. It's always fun to hear from you!"
+					 )
 				);
 				var as = d.getElementsByTagName('a');
 				for (var i=0; i<as.length; i++) {
