@@ -223,6 +223,13 @@ var makeRoom = function(x, y, z, angle, id) {
 };
 
 window.addEventListener('load', function(){
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+							 m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+							})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-40416926-1', 'poemyou.com');
+	ga('send', 'pageview');
+
 	if (new E.CSSMatrix().js) {
 		showError();
 		return;
@@ -417,13 +424,12 @@ window.addEventListener('load', function(){
 		}, false);
 	}
 
-/*
-	E.requestSharedAnimationFrame(function() {
+	if (window.performance) {
 		E.requestSharedAnimationFrame(function() {
 			console.log("Time to second frame: " + (Date.now() - performance.timing.navigationStart));
 		});
-	});
-*/
+		console.log("Time to first frame: " + (Date.now() - performance.timing.navigationStart));
+	}
 
 	var shareConsidered = false;
 	E.id('share-buttons').addEventListener('mouseover', function() {
