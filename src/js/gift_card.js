@@ -2,7 +2,7 @@
 var wallVec = vec3.create(0,0,-200);
 
 var makeWall = function(rot) {
-	var wall = E.makeQuad(400, 400, 'url(images/box_wall.png)', 'url(images/box_inside_wall.png)');
+	var wall = E.makeQuad(400, 400, '.box-box_wall', '.box-box_inside_wall');
 	var m = mat4.identity();
 	mat4.rotateY(m, rot);
 	mat4.translate(m, wallVec);
@@ -98,10 +98,10 @@ var makeRoom = function(x, y, z, angle, id) {
 		this.setTransform(this.matrix);
 	};
 
-	var floor = E.makeQuad(400, 400, 'url(images/box_bottom.png)', 'url(images/box_inside_bottom.png)');
+	var floor = E.makeQuad(400, 400, '.box-box_bottom', '.box-box_inside_bottom');
 	floor.setTransform(mat4.translate(mat4.rotateX(mat4.identity(), Math.PI/2), vec3(0,0,-200)));
 
-	var ceil = E.makeQuad(400, 400, 'url(images/box_inside_top.png)', 'url(images/box_top.png)');
+	var ceil = E.makeQuad(400, 400, '.box-box_inside_top', '.box-box_top');
 	ceil.setTransform(mat4.translate(mat4.rotateX(mat4.identity(), Math.PI/2), vec3(0, 0, 200)));
 	room.append(
 		floor,
@@ -399,12 +399,12 @@ window.addEventListener('load', function(){
 	};
 
 	if (!(query.t || hash.t)) {
-		if (window.ga) ga('pageview', 'Edit');
+		if (window.ga) ga('send', 'event', 'Edit');
 		updateCards();
 		handleInput('click');
 		showOverlay();
 	} else {
-		if (window.ga) ga('pageview', 'View');
+		if (window.ga) ga('send', 'event', 'View');
 		updateCards();
 		hideOverlay();
 		E.id('make-your-own').style.display = 'block';
@@ -502,7 +502,7 @@ var showSend = function() {
 		this.select();
 	};
 	loadButtons();
-	try { FB.XFBML.parse(); } catch(e) {}
+	//try { FB.XFBML.parse(); } catch(e) {}
 	//try { WB2.initCustomTag(); } catch(e) {}
 	//twttr.widgets.load();
 	try { gapi.plus.go(); } catch(e) {}
@@ -529,7 +529,7 @@ E.loadScript = function(src, id) {
 };
 
 var loadButtons = function() {
-	E.loadScript("//connect.facebook.net/en_US/all.js#xfbml=1", 'facebook-jssdk');
+	//E.loadScript("//connect.facebook.net/en_US/all.js#xfbml=1", 'facebook-jssdk');
 	//E.loadScript("//platform.twitter.com/widgets.js", 'twitter-wjs');
 	E.loadScript("https://apis.google.com/js/plusone.js", 'google-plusone');
 	//E.loadScript("http://tjs.sjs.sinajs.cn/open/api/js/wb.js", 'weibo-wb');
@@ -621,6 +621,7 @@ var ABTest = function(name, options) {
 	 */
 };
 
+/*
 ABTest("Promo", [
 	{
 		name: "Amazon Gift Card",
@@ -673,6 +674,6 @@ ABTest("Promo", [
 	}
 
 ]);
-
+*/
 
 })();

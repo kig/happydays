@@ -1138,8 +1138,12 @@ if (typeof mat4 !== 'undefined') {
 		},
 		
 		setBg : function(color) {
-			if (typeof color == 'string') {
-				this.style.background = color;
+			if (typeof color === 'string') {
+				if (/^\.[a-z_-]+$/.test(color)) {
+					this.classList.add(color.substring(1));
+				} else {
+					this.style.background = color;
+				}
 			} else {
 				this.style.background = E.ColorUtils.colorToStyle(color);
 			}
