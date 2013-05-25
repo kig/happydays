@@ -1,14 +1,14 @@
 <!doctype HTML>
 <html>
 	<head>
-		<title>PoemYou! - Greet With Style</title>
-		<meta property="og:title" content="PoemYou! - Box of Poems">
-		<meta property="og:description" content="The Internet's Leading Poem-in-a-Box Service. Write a poem and send it to friends and family! In a box!">
+		<title>PoemYou!</title>
+		<meta property="og:title" content="PoemYou! - The Mystery Box">
+		<meta property="og:description" content="The Box is a Mystery">
 		<meta property="og:image" content="http://www.poemyou.com/images/clover.png">
 
 		<meta name="viewport" content="width=800">
 		<meta property="fb:admins" content="1412972424" />
-		<meta name="description" content="PoemYou! - Box of Poems">
+		<meta name="description" content="PoemYou! - The Mystery Box">
 		<link rel="shortcut icon" href="images/clover.png">
 
 		<link rel="stylesheet" href="css/style.css">
@@ -16,29 +16,31 @@
 	<body>
 		<div class="preload">
 			<img src="images/clover.png">
-			<img src="images/box-sc2a4f5e929.png">
+			<img src="images/ground.png">
+			<img src="images/box-s3c3d217165.png">
 		</div>
+		<div id="logo"></div>
 		<div id="customize">
 			<div id="write-greeting">
-				<h2>Write Your Poem</h2>
-				<h3>Title</h3>
-				<p><input id="edit-title" type="text" value="This is my poem"></p>
+				<h2>Write Your Mystery</h2>
+				<h3>Pivot</h3>
+				<p><input id="edit-title" type="text" value="This is my pivot"></p>
 				<h3>Verses</h3>
 				<p><input id="edit-body1" type="text" value="It has a verse"></p>
 				<p><input id="edit-body2" type="text" value="And maybe another"></p>
 				<p><input id="edit-body3" type="text" value="Before the end"></p>
-				<p><button id="ready">Get your share URL</button>
+				<p><button id="ready">Get The Link for The Box </button>
 			</div>
 			<div id="send-greeting">
-				<h2>Ready to Send?</h2>
-				<p><button id="nowai">No, wait, I need to change something!</button></p>
-				<h3>Click Below to Send Your Greeting</h3>
+				<h2>The Link to The Box</h2>
 				<p id="share-buttons">
 				</p>
+				<br>
+				<p><button id="nowai">Wait, I need to Add Mystery!</button></p>
 			</div>
 		</div>
 		<div id="make-your-own">
-			<a href="/">Click here to make your own greeting</a>
+			<a href="/">Click here to make your own box</a>
 		</div>
 		<div id="error">
 			<h2>Oops, can't render glorious 3D</h2>
@@ -55,6 +57,7 @@
 		</div>
 		<div id="fb-root"></div>
 		<!-- SCRIPT -->
+		<script src="js/dat.gui.min.js"></script>
 		<script src="js/matrix.js"></script>
 		<script src="js/E.js"></script>
 		<script src="js/gift_card.js"></script>

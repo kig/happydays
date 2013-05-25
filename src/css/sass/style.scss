@@ -1,9 +1,9 @@
 
 @import "compass/utilities/sprites";
+
+$box-spacing: 4px;
 @import "box/*.png";
-
 @include all-box-sprites;
-
 
 html {
 	width: 100%;
@@ -12,6 +12,22 @@ html {
 	min-height: 900px;
 	overflow: hidden;
 	background: #fef;
+
+	/* Webkit (Chrome 11+) */ 
+	background: -webkit-radial-gradient(center 40%, circle farthest-corner, transparent 0%, transparent 50%, rgba(0,0,0,0.6) 100%), -webkit-linear-gradient(0deg, rgba(148,110,95,1) 0%, rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%, rgba(148,110,95,1) 100%), -webkit-radial-gradient(center 90%, circle farthest-corner, rgba(211,236,240,1) 0%, #667380 68%, #69656f 75%, #cc904b 100%);
+}
+
+#logo {
+	position: absolute;
+	display: block;
+	top: 40px;
+	left: 50%;
+	margin-left: -70px;
+	width: 140px;
+	height: 500px;
+	background: url(/images/fhtr.png);
+	background-repeat: no-repeat;
+	background-size: contain;
 }
 
 h1,h2 {

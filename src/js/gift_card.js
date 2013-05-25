@@ -6,13 +6,41 @@ var makeWall = function(rot) {
 	var m = mat4.identity();
 	mat4.rotateY(m, rot);
 	mat4.translate(m, wallVec);
+	mat4.scale(m, vec3(1.005, 1.005, 1.005));
 	wall.setTransform(m);
+	return wall;
+};
+
+var makeGround = function(x, z) {
+	var wall = E.makeQuad(800, 800, 'url(images/ground.png)');
+	var m = mat4.identity();
+	mat4.translate(m, vec3(x, 0, z));
+	mat4.rotateX(m, Math.PI/2);
+	mat4.translate(m, vec3(0,0,-201));
+	var s = 1.0;
+	mat4.scale(m, vec3(s,s,s));
+	wall.setTransform(m);
+	var v = vec3(0, 0, -379);
+	var h = 1600;
+	var u = vec3(399, 399.5, -h/2-0.5);
+	for (var i=0; i<8; i++) {
+		var l = ((i+3)%8)/8;
+		var w = E.makeQuad(315, h, '-webkit-linear-gradient(-90deg, rgba(212,244,248,0) 0%, rgba(212,244,248,1) 20%, rgba(130,168,180,1) 50%, hsl(250,12%,'+(7+l*40)+'%) 90%,#222 90.1%,#2cf 91.5%, hsl(250,12%,'+(7+l*40)+'%) 91.6%, hsl(270,13%, '+(0+l*40)+'%) 100%)');
+		w.style.boxSizing = 'border-box';
+		m = mat4.identity();
+		mat4.translate(m, u);
+		mat4.rotateX(m, Math.PI/2);
+		mat4.rotateY(m, i/8*Math.PI*2);
+		mat4.translate(m, v);
+		w.setTransform(m);
+		wall.append(w);
+	}
 	return wall;
 };
 
 var IsSlow = navigator.userAgent.match(/mobile/i);
 
-var makeConfetti = function(room) {
+var makeConfetti = function(box) {
 	var confetti = E.D3();
 	confetti.style.pointerEvents = 'none';
 	confetti.setSz(64, 64);
@@ -30,13 +58,13 @@ var makeConfetti = function(room) {
 	confetti.gravity = true;
 	confetti.update = function() {
 		if (this.frames > 200 || IsSlow) {
-			room.confetti.splice(room.confetti.indexOf(this), 1);
-			room.removeChild(this);
+			box.confetti.splice(box.confetti.indexOf(this), 1);
+			box.removeChild(this);
 		}
 		this.frames++;
 		E.CSS.update.call(this);
 	};
-	room.append(confetti);
+	box.append(confetti);
 	return confetti;
 };
 
@@ -47,15 +75,15 @@ var spring = function(object, springConstant, springPosition, mass) {
 	vec3.add(object.velocity, springTmp);
 };
 
-var makeRoom = function(x, y, z, angle, id) {
-	var room = E.D3();
-	room.gravity = true;
-	room.position[0] = x;
-	room.position[1] = y;
-	room.position[2] = z;
-	room.rotation[1] = angle;
-	room.update();
-	room.angle = angle;
+var makeBox = function(x, y, z, angle, id) {
+	var box = E.D3();
+	box.gravity = true;
+	box.position[0] = x;
+	box.position[1] = y;
+	box.position[2] = z;
+	box.rotation[1] = angle;
+	box.update();
+	box.angle = angle;
 	
 	var card = E.D3();
 	var cardWidth = 350;
@@ -80,8 +108,8 @@ var makeRoom = function(x, y, z, angle, id) {
 	card.appendChild(card_title);
 	card.appendChild(card_body);
 
-	room.card = card;
-	room.append(card);
+	box.card = card;
+	box.append(card);
 	card.update = function() {
 		//this.nextFold.updateFold();
 		var m = this.matrix;
@@ -99,11 +127,11 @@ var makeRoom = function(x, y, z, angle, id) {
 	};
 
 	var floor = E.makeQuad(400, 400, '.box-box_bottom', '.box-box_inside_bottom');
-	floor.setTransform(mat4.translate(mat4.rotateX(mat4.identity(), Math.PI/2), vec3(0,0,-200)));
+	floor.setTransform(mat4.scale(mat4.translate(mat4.rotateX(mat4.identity(), Math.PI/2), vec3(0,0,-200)), vec3(0.995, 0.995, 0.995)));
 
 	var ceil = E.makeQuad(400, 400, '.box-box_inside_top', '.box-box_top');
 	ceil.setTransform(mat4.translate(mat4.rotateX(mat4.identity(), Math.PI/2), vec3(0, 0, 200)));
-	room.append(
+	box.append(
 		floor,
 		makeWall(0),
 		makeWall(Math.PI*0.5),
@@ -112,9 +140,9 @@ var makeRoom = function(x, y, z, angle, id) {
 		ceil
 	);
 
-	room.confetti = [];
-	room.confettiTicker = 0;
-	room.shootConfetti = function() {
+	box.confetti = [];
+	box.confettiTicker = 0;
+	box.shootConfetti = function() {
 		if (IsSlow) {
 			return;
 		}
@@ -129,17 +157,17 @@ var makeRoom = function(x, y, z, angle, id) {
 		this.confetti.push(makeConfetti(this));
 	};
 	
-	room.door = room.childNodes[room.childNodes.length-1];
-	room.door.open = false;
-	room.door.baseTransform = mat4(room.door.matrix);
-	room.door.currentAngle = 0;
-	room.door.targetAngle = 0;
-	room.lit = false;
+	box.door = box.childNodes[box.childNodes.length-1];
+	box.door.open = false;
+	box.door.baseTransform = mat4(box.door.matrix);
+	box.door.currentAngle = 0;
+	box.door.targetAngle = 0;
+	box.lit = false;
 
-	room.door.angleV = 0;
-	room.door.angleA = 0;
+	box.door.angleV = 0;
+	box.door.angleA = 0;
 
-	room.toggleOpen = function() {
+	box.toggleOpen = function() {
 		this.door.open = !this.door.open;
 		if (this.door.open) {
 			this.door.angleA = 0.01;
@@ -150,18 +178,18 @@ var makeRoom = function(x, y, z, angle, id) {
 			this.door.angleV = -0.120;
 		}
 	};
-	room.lightUp = function() {
+	box.lightUp = function() {
 		if (this.lit) return;
 		this.lit = true;
 	};
-	room.lightDown = function() {
+	box.lightDown = function() {
 		if (!this.lit) return;
 		this.lit = !true;
 	};
-	room.zoom = 1;
-	room.zoomCounter = 30;
-	room.confettiCounter = 0;
-	room.ontick = function() {
+	box.zoom = 1;
+	box.zoomCounter = 30;
+	box.confettiCounter = 0;
+	box.ontick = function() {
 		this.update();
 		this.door.currentAngle += this.door.angleV;
 		this.door.angleV += this.door.angleA;
@@ -212,14 +240,14 @@ var makeRoom = function(x, y, z, angle, id) {
 		);
 		this.door.setTransform(t);
 	};
-	room.doorVec = vec3(0, -200, 0);
-	room.doorVec2 = vec3(0, 200, 0);
+	box.doorVec = vec3(0, -200, 0);
+	box.doorVec2 = vec3(0, 200, 0);
 	
-	room.style.cursor = 'pointer';
-	room.addEventListener('click', function() {
+	box.style.cursor = 'pointer';
+	box.addEventListener('click', function() {
 		this.toggleOpen();
 	}, false);
-	return room;
+	return box;
 };
 
 window.addEventListener('load', function(){
@@ -237,14 +265,16 @@ window.addEventListener('load', function(){
 
 	var world = E.D3();
 	world.setTransform(mat4());
-	var roomVec = vec3(0, 0, 0);
+	var boxVec = vec3(0, 0, 0);
 	var resize = function() {
 		var html = document.body.parentNode;
 		var w = html.clientWidth;
 		var h = html.clientHeight;
 		world.setSz(w, h);
 		world.setPerspective(h);
-		var v = roomVec;
+		world.width = w;
+		world.height = h;
+		var v = boxVec;
 		v[1] = -h/2;
 		v.angle = 0;
 	};
@@ -259,30 +289,65 @@ window.addEventListener('load', function(){
 	camera.position = vec3(100, -200, 400);
 	camera.lookAt = vec3(0, 0, 0);
 	camera.up = vec3(0,1,0);
+	camera.fov = 1;
+	camera.near = 1;
+	camera.far = 10000;
 	world.append(camera);
 
 	var d = E.D3();
 	d.setBg('red');
 	d.setSz(10, 10);
 	d.position = vec3(-5, -5, 0);
-	//camera.append(d);
-	
+	if (window.dat) {
+		camera.append(d);
+	}
+
+	var boxes = [];
+
 	var id = 0;
-	var roomObject = makeRoom(0, -1600, 0, 0, id);
-
-	camera.append(roomObject);
-
-	var currentRoomNumber = 0;
-	var zoomIn = true;
-	var handleInput = function(action){
-		if (action == 'click') {
-			roomObject.toggleOpen();
+	var currentBox = 0;
+	for (var j=-1; j<=1; j++) {
+		for (var k=0; k<3; k++) {
+			if (
+				(k === 0 && j === -1) ||
+					(k===0 && j === 1) ||
+					(k===2 && j === -1) ||
+					(k===2 && j === 1)
+			) {
+				continue;
+			}
+			if (k===1 && j===0) {
+				currentBox = id;
+			}
+			var x = j*900;
+			var y = -1200-((j+k)/9)*3600;
+			var z = -k*900;
+			var a = 0; //j+k;
+			var ground = makeGround(x, z);
+			ground.boxId = id;
+			camera.append(ground);
+			var box = makeBox(x, y, z, a, id);
+			box.boxId = id;
+			box.vector = vec3(x,0,z);
+			E.on(box, 'click', function() {
+				currentBox = this.boxId;
+			});
+			E.on(ground, 'click', function() {
+				currentBox = this.boxId;
+			});
+			id++;
+			boxes.push(box);
+			camera.append(box);
 		}
-	};
+	}
+
+	var filledBox = (Math.random()*boxes.length) | 0;
+
+	var zoomIn = true;
 
 	camera.zf = 1;
 
-	var r = roomVec;
+	var r = boxVec;
 
 	camera.lookAt[0] = r[0];
 	camera.lookAt[1] = r[1];
@@ -291,6 +356,82 @@ window.addEventListener('load', function(){
 	camera.position[1] = r[1]-300;
 	camera.position[2] = r[2]+800;
 
+	var obj = {};
+
+	obj.lookX = 707;
+	obj.lookY = 1162;
+	obj.lookZ = -1179;
+	obj.pX = -334;
+	obj.pY = -269;
+	obj.pZ = 186;
+
+	obj.zoomLookX = 0;
+	obj.zoomLookY = 300;
+	obj.zoomLookZ = -000;
+	obj.zoomPX = 0;
+	obj.zoomPY = 200;
+	obj.zoomPZ = 200;
+
+	if (window.dat && false) {
+		var gui = new dat.GUI();
+		gui.add(obj, 'lookX', -3000, 3000);
+		gui.add(obj, 'lookY', -3000, 3000);
+		gui.add(obj, 'lookZ', -3000, 3000);
+		gui.add(obj, 'pX', -3000, 3000);
+		gui.add(obj, 'pY', -3000, 3000);
+		gui.add(obj, 'pZ', -3000, 3000);
+	}
+
+	var rv = vec3();
+
+	var sparks = [];
+	var n = 150;
+	for (var i=0; i<n; i++) {
+		var spark = E.makeQuad(4+Math.random()*8, 16+Math.random()*32, 'rgba(255,255,255,0.5)');
+		sparks.push(spark);
+		spark.matrix = mat4();
+		var rd = Math.random()*900+1350;
+		spark.position = vec3(0+Math.cos(Math.PI+Math.PI*1.5*i/n)*rd, 6400+Math.random()*6400, -900+Math.sin(Math.PI+Math.PI*1.5*i/n)*rd);
+		spark.angle = i/n * Math.PI*2;
+		spark.velocity = vec3(0, -60-Math.random()*62, 0);
+		spark.ontick = function() {
+			mat4.identity(this.matrix);
+			mat4.translate(this.matrix, this.position);
+			mat4.rotateY(this.matrix, this.angle);
+			mat4.scale(this.matrix, vec3(1,8,1));
+			//mat4.rotateX(this.matrix, this.angle);
+			//this.angle += this.velocity[1]*0.005;
+			vec3.add(this.position, this.velocity, this.position);
+			if (this.position[1] < -1200) {
+				this.position[1] = 4800;
+				this.velocity[1] = -40-Math.random()*12;
+			}
+			//this.velocity[0] = 5*Math.sin(Date.now()/(20*this.velocity[1]));
+			this.setTransform(this.matrix);
+		};
+		camera.append(spark);
+	}
+
+	var grids = [];
+	for (x=-2; x<8; x++) {
+		var line = E.makeQuad(4, 4, '-webkit-linear-gradient(0deg, rgba(255,255,255,'+(Math.pow((1-x/12), 2)*0.5)+'), rgba(255,255,255,0) 75%)');
+		line.matrix = mat4.identity(line.matrix);
+		mat4.translate(line.matrix, vec3(-1800, 1600, 450-900*x));
+		mat4.rotateX(line.matrix, Math.PI/2);
+		mat4.scale(line.matrix, vec3(4000,2,1));
+		line.setTransform(line.matrix);
+		camera.append(line);
+	}
+	for (y=-2; y<8; y++) {
+		var line = E.makeQuad(4, 4, '-webkit-linear-gradient(90deg, rgba(255,255,255,'+(Math.pow((1-y/12), 2)*0.5)+'), rgba(255,255,255,0) 75%)');
+		line.matrix = mat4.identity(line.matrix);
+		mat4.translate(line.matrix, vec3(-2250+900*y, 1600, 0));
+		mat4.rotateX(line.matrix, Math.PI/2);
+		mat4.scale(line.matrix, vec3(2,4000,1));
+		line.setTransform(line.matrix);
+		camera.append(line);
+	}
+
 	var previousTime = 0;
 	var slowFrameCounter = 0;
 	var tick = function() {
@@ -298,31 +439,40 @@ window.addEventListener('load', function(){
 		var elapsed = t - previousTime;
 		previousTime = t;
 
-		if (elapsed > 33) {
+		if (elapsed > 60) {
 			slowFrameCounter += Math.min(2, elapsed / 33);
 		} else {
 			slowFrameCounter--;
 		}
-		if (slowFrameCounter > 5) {
+		if (slowFrameCounter > 10) {
 			IsSlow = true;
 		}
 
-		roomObject.ontick();
+		for (var i=0; i<boxes.length; i++) {
+			boxes[i].ontick();
+		}
 
-		var r = roomVec;
+		for (var i=0; i<sparks.length; i++) {
+			sparks[i].ontick();
+		}
+
+		var r = rv;
+		vec3.add(boxVec, boxes[currentBox].vector, r);
+		r.angle = boxVec.angle;
 		var sa = Math.sin(r.angle);
 		var ca = Math.cos(r.angle);
-		camera.zf += (roomObject.zoom-camera.zf) * 0.1;
-		var zf = camera.zf;
+		camera.zf += (boxes[currentBox].zoom-camera.zf) * 0.1;
+		var zf = 1-camera.zf;
 		r.angle += 0.01;
+		
+		camera.lookAt[0] += (r[0]-camera.lookAt[0] +(1-zf*zf)*obj.lookX +zf*zf*obj.zoomLookX) * 0.1;
+		camera.lookAt[1] += (r[1]-camera.lookAt[1] +(1-zf)*obj.lookY +zf*obj.zoomLookY) * 0.1;
+		camera.lookAt[2] += (r[2]-camera.lookAt[2] +(1-zf)*obj.lookZ +zf*obj.zoomLookZ) * 0.1;
+		camera.position[0] += (r[0]-camera.position[0] +(1-zf*zf)*obj.pX +zf*zf*obj.zoomPX) * 0.15;
+		camera.position[1] += (r[1]-camera.position[1] +(1-zf)*obj.pY +zf*obj.zoomPY) * 0.15;
+		camera.position[2] += (r[2]-camera.position[2] +(1-zf)*obj.pZ +zf*zf*zf*zf*obj.zoomPZ) * 0.15;
 
-		camera.lookAt[0] += (r[0]-camera.lookAt[0]) * 0.1;
-		camera.lookAt[1] += (r[1]-camera.lookAt[1]) * 0.1;
-		camera.lookAt[2] += (r[2]-camera.lookAt[2]) * 0.1;
-		camera.position[0] += (r[0]-camera.position[0]+200*zf*zf) * 0.15;
-		camera.position[1] += (r[1]-camera.position[1]-300*zf) * 0.15;
-		camera.position[2] += (r[2]-camera.position[2]+800*zf) * 0.15;
-
+		//camera.perspective = mat4.perspective(camera.fov, world.width/world.height, camera.near, camera.far, camera.perspective);
 		mat4.lookAt(
 			camera.position,
 			camera.lookAt,
@@ -332,7 +482,7 @@ window.addEventListener('load', function(){
 		centerVec[0] = window.innerWidth/2;
 		centerVec[1] = window.innerHeight/2;
 		mat4.translate(camera.matrix, centerVec, camera.matrix);
-		camera.setTransform(camera.matrix);
+		camera.setTransform(camera.matrix); //mat4.multiply(camera.matrix, camera.perspective));
 		E.requestSharedAnimationFrame(tick);
 	};
 	var centerVec = vec3(0,0,0);
@@ -350,10 +500,10 @@ window.addEventListener('load', function(){
 	names.forEach(editMon);
 
 	var updateCards = function() {
-		E.id('card-title').appendChild(E.T(cardContent.t));
-		E.id('card-body1').appendChild(E.T(cardContent.b1));
-		E.id('card-body2').appendChild(E.T(cardContent.b2));
-		E.id('card-body3').appendChild(E.T(cardContent.b3));
+		boxes[filledBox].querySelector('#card-title').appendChild(E.T(cardContent.t));
+		boxes[filledBox].querySelector('#card-body1').appendChild(E.T(cardContent.b1));
+		boxes[filledBox].querySelector('#card-body2').appendChild(E.T(cardContent.b2));
+		boxes[filledBox].querySelector('#card-body3').appendChild(E.T(cardContent.b3));
 	};
 
 	var enteredSomething = false;
@@ -408,20 +558,21 @@ window.addEventListener('load', function(){
 	if (!(query.t || hash.t)) {
 		if (window.ga) ga('send', 'event', 'Edit');
 		updateCards();
-		handleInput('click');
-		showOverlay();
+		//showOverlay();
 	} else {
 		if (window.ga) ga('send', 'event', 'View');
 		updateCards();
 		hideOverlay();
 		E.id('make-your-own').style.display = 'block';
-		roomObject.addEventListener('click', function() {
-			setTimeout(function() {
-				var e = E.id('make-your-own');
-				e.style.opacity = 1;
-				e.style.bottom = '20px';
-			}, 4000);
-		}, false);
+		boxes.forEach(function(box){
+			box.addEventListener('click', function() {
+				setTimeout(function() {
+					var e = E.id('make-your-own');
+					e.style.opacity = 1;
+					e.style.bottom = '20px';
+				}, 4000);
+			}, false);
+		});
 	}
 
 	if (window.performance) {
@@ -497,9 +648,9 @@ var showSend = function() {
 	var share =E.id('share-buttons');
 	share.innerHTML = (
 		//'<div class="fb-like" data-send="true" data-width="450" data-show-faces="true" data-href="'+u.replace(/#/, '?')+'"></div><br>' +
-			'<div class="g-plus" data-action="share" data-height="24" data-href="'+u+'"></div><br>' + 
+			//'<div class="g-plus" data-action="share" data-height="24" data-href="'+u+'"></div><br>' + 
 			//'<a href="https://twitter.com/share" class="twitter-share-button" data-url="'+u+'" data-text="Hey, I just made a box full of awesome with @PoemYouApp, go check it out">Tweet</a> ' +
-			'<h4>Or copy the link below:</h4>'+
+			'<h4>Copy the link below:</h4>'+
 			'<input value="'+u+'" style="padding-left:10px;padding-right:10px;margin-bottom:20px;display:block;">'+
 			''
 			//'<wb:share-button class="weibo-button" count="n" type="button" size="small" url="'+u+'"></wb:share-button>'
@@ -511,7 +662,7 @@ var showSend = function() {
 	//try { FB.XFBML.parse(); } catch(e) {}
 	//try { WB2.initCustomTag(); } catch(e) {}
 	//twttr.widgets.load();
-	try { gapi.plus.go(); } catch(e) {}
+	//try { gapi.plus.go(); } catch(e) {}
 
 	for (var i=0; i<onSendCallbacks.length; i++) {
 		onSendCallbacks[i]();
@@ -537,7 +688,7 @@ E.loadScript = function(src, id) {
 var loadButtons = function() {
 	//E.loadScript("//connect.facebook.net/en_US/all.js#xfbml=1", 'facebook-jssdk');
 	//E.loadScript("//platform.twitter.com/widgets.js", 'twitter-wjs');
-	E.loadScript("https://apis.google.com/js/plusone.js", 'google-plusone');
+	//E.loadScript("https://apis.google.com/js/plusone.js", 'google-plusone');
 	//E.loadScript("http://tjs.sjs.sinajs.cn/open/api/js/wb.js", 'weibo-wb');
 };
 
@@ -576,7 +727,6 @@ var showError = function() {
 };
 
 var ABTest = function(name, options) {
-	/*
 	if (window.localStorage) {
 		var seen = localStorage['AB-'+name];
 		if (seen) {
@@ -594,17 +744,15 @@ var ABTest = function(name, options) {
 			};
 		}
 	}
-	 */
+
 	var i;
 	var option = null;
 	var sum = 0, weights = [];
 	for (i=0; i<options.length; i++) {
-		/*
 		if (options[i].name == seen.name) {
 			option = options[i];
 			break;
 		}
-		 */
 		sum += options[i].weight;
 		weights.push(sum);
 	}
@@ -619,67 +767,12 @@ var ABTest = function(name, options) {
 	}
 	ga('send', 'event', name, option.name);
 	option.run();
-	/*
+
 	seen.name = option.name;
 	if (window.localStorage) {
 		localStorage['AB-'+name] = JSON.stringify(seen);
 	}
-	 */
+
 };
-
-/*
-ABTest("Promo", [
-	{
-		name: "Amazon Gift Card",
-		weight: 1,
-		run: function() {
-			onSendCallbacks.push(function() {
-				var assocCode, linkCode;
-				var lang = navigator.userLanguage || navigator.language || navigator.systemLanguage;
-				switch (lang) {
-				case 'fr-FR':
-				case 'de-DE':
-				case 'en-GB':
-					assocCode = '<a href="http://www.amazon.co.uk/gp/product/B007L3T4MY/ref=as_li_ss_il?ie=UTF8&camp=1634&creative=19450&creativeASIN=B007L3T4MY&linkCode=as2&tag=poemyou-21"><img border="0" src="http://ws.assoc-amazon.co.uk/widgets/q?_encoding=UTF8&ASIN=B007L3T4MY&Format=_SL160_&ID=AsinImage&MarketPlace=GB&ServiceVersion=20070822&WS=1&tag=poemyou-21" ></a><img src="http://www.assoc-amazon.co.uk/e/ir?t=poemyou-21&l=as2&o=2&a=B007L3T4MY" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />';
-					linkCode = 'http://www.amazon.co.uk/gp/product/B007L3T4MY/ref=as_li_ss_il?ie=UTF8&camp=1634&creative=19450&creativeASIN=B007L3T4MY&linkCode=as2&tag=poemyou-21';
-					break;
-				case 'ja-JP':
-				case 'en-US':
-				default:
-					assocCode = '<a href="http://www.amazon.com/gp/product/B004LLILM8/ref=as_li_ss_il?ie=UTF8&camp=1789&creative=390957&creativeASIN=B004LLILM8&linkCode=as2&tag=poemyou-20"><img border="0" src="http://ws.assoc-amazon.com/widgets/q?_encoding=UTF8&ASIN=B004LLILM8&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=poemyou-20" ></a><img src="http://www.assoc-amazon.com/e/ir?t=poemyou-20&l=as2&o=1&a=B004LLILM8" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />';
-					linkCode = 'http://www.amazon.com/gp/product/B004LLILM8/ref=as_li_ss_il?ie=UTF8&camp=1789&creative=390957&creativeASIN=B004LLILM8&linkCode=as2&tag=poemyou-20';
-				}
-				var ad = E('div');
-				ad.innerHTML = assocCode;
-				var d = E('div');
-				d.append(
-					E('h3', 'Would you also like to send a gift?'),
-					ad,
-					E('h4', 'Show your love with an <a href="'+linkCode+'">Amazon Gift Card</a>.'),
-					E('h4', 
-					  "And how about doing a ", 
-					  E('a', {href: "http://www.google.com/+/learnmore/hangouts/", target: "_blank"}, "video call"),
-					  " to follow up on your card. It's always fun to hear from you!"
-					 )
-				);
-				var as = d.getElementsByTagName('a');
-				for (var i=0; i<as.length; i++) {
-					as[i].onclick = function() {
-						ga('send', 'event', 'Send', 'Gift Card Link');
-					};
-					as[i].target = '_blank';
-				}
-				d.style.opacity = 0;
-				d.style.webkitTransition = d.style.MozTransition = d.style.transition = '2s';
-				setTimeout(function() {
-					d.style.opacity = 1;
-				}, 3000);
-				E.id('share-buttons').appendChild(d);
-			});
-		}
-	}
-
-]);
-*/
 
 })();
