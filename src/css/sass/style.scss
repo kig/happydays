@@ -8,8 +8,6 @@ $box-spacing: 4px;
 html {
 	width: 100%;
 	height: 100%;
-	min-width: 800px;
-	min-height: 900px;
 	overflow: hidden;
 	background: #fef;
 
@@ -22,21 +20,24 @@ html {
 	display: block;
 	top: 40px;
 	left: 50%;
-	margin-left: -70px;
-	width: 140px;
-	height: 500px;
+	margin-left: -50px;
+	width: 100px;
+	height: 156px;
 	background: url(/images/fhtr.png);
 	background-repeat: no-repeat;
 	background-size: contain;
 }
 
 h1,h2 {
-	font-family: Optima, Verdana, sans-serif;
+	font-family: Helvetica Neue, Helvetica, sans-serif;
 }
 
 h3,h4 {
-	font-family: Optima, Verdana, sans-serif;
+	font-family: Helvetica Neue, Helvetica, sans-serif;
+	letter-spacing: 2px;
+	text-indent: 2px;
 	font-weight: normal;
+	font-size: 14px;
 }
 
 a {
@@ -80,10 +81,11 @@ p {
 	left: 20px;
 	z-index: 2;
 
-	border-radius: 12px;
-	background:white;
+	border-radius: 2px;
+	background:rgba(0,0,0,0.3);
+	color: white;
 	box-shadow: 1px 2px 10px -2px rgba(0,0,0,0.3);
-	border: 8px solid rgb(240, 218, 149);
+	border: 1px solid rgba(0,0,0,0.1);
 	text-align:	 center;
 	width: 340px;
 	padding: 32px;
@@ -93,12 +95,21 @@ p {
 		padding: 0;
 	}
 
+	h1,h2 {
+		letter-spacing: 25px;
+		font-weight: 100;
+		font-size: 50px;
+		text-indent: 25px;
+	}
+
 	h1 {
 		margin-bottom: 16px;
 	}
 
 	h2 {
-		margin-bottom: 8px;
+		padding-bottom: 16px;
+		border-bottom: 1px solid rgba(255,255,255,0.2);
+		margin-bottom: 24px;
 	}
 
 	h3 {
@@ -123,8 +134,10 @@ p {
 		-webkit-appearance: none;
 		box-shadow: inset 1px 1px 4px rgba(0,0,0,0.3);
 
+		background: -webkit-linear-gradient(left, rgba(255,255,255,0.9) 0%, rgba(255,255,255,1) 50%, rgba(255,255,255,0.9) 100%);
+
 		&:focus {
-			box-shadow: 0px 0px 8px rgba(195, 120, 125, 0.8);
+			box-shadow: 0px 0px 8px rgba(255, 170, 125, 0.8);
 		}
 	}
 
@@ -197,31 +210,28 @@ p {
 }
 
 button {
-	background-color: #9e76e8;
-	background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #9e76e8), color-stop(50%, #7038e0), color-stop(50%, #6021de), color-stop(100%, #6224de));
-	background-image: -webkit-linear-gradient(top, #9e76e8 0%, #7038e0 50%, #6021de 50%, #6224de 100%);
-	background-image: -moz-linear-gradient(top, #9e76e8 0%, #7038e0 50%, #6021de 50%, #6224de 100%);
-	background-image: -ms-linear-gradient(top, #9e76e8 0%, #7038e0 50%, #6021de 50%, #6224de 100%);
-	background-image: -o-linear-gradient(top, #9e76e8 0%, #7038e0 50%, #6021de 50%, #6224de 100%);
-	background-image: linear-gradient(top, #9e76e8 0%, #7038e0 50%, #6021de 50%, #6224de 100%);
-	color: #fff;
+	background-color: transparent;
+	background-image: -webkit-linear-gradient(bottom, #836c5e 0%, #61534f 48%, #f2fbff 51%, #d3d3d7 73%, #8d8179 100%);
+	color: rgba(0, 0, 0, 0.5);
 	font-weight: bold;
-	font-size: 13px;
-	padding: 12px 24px;
+	font-size: 40px;
+	padding: 11px 19px 13px 19px;
 	text-align: center;
-	text-shadow: 0px -1px 1px #473569;
+//	text-shadow: 0px 0px 1px rgba(255, 255, 255, 0.42);
 	-webkit-background-clip: padding-box;
-	border-radius: 20px;
-	box-shadow: 0px 2px 6px -1px rgba(60, 30, 70, 0.8);
+	border-radius: 48px;
+	box-shadow: 0px 2px 8px -1px rgba(0, 0, 0, 0.74);
+	box-sizing: border-box;
 	outline: 0;
-	margin-top: 16px;
-	margin-bottom:0;
+	margin-top: 32px;
+	margin-bottom: 0;
 	border: 0;
+	min-width: 71px;
 }
 
 button:active {
-	margin-top:18px;
-	box-shadow: 0px 1px 5px -1px rgba(80,50,90,0.8);
+	margin-top:34px;
+	box-shadow: 0px 1px 5px -1px rgba(0,0,0,0.8);
 	margin-bottom: -2px;
 }
 
