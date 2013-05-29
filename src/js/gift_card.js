@@ -617,7 +617,7 @@
 			card.classList.remove('spotify');
 			var yt = v.match(/^(https?:\/\/)?youtu.be\/([a-zA-Z0-9_-]+)/);
 			if (yt) {
-				card.innerHTML = '<iframe width="720" height="480" src="http://www.youtube.com/embed/'+yt[2]+'" frameborder="0" allowfullscreen></iframe>';
+				card.innerHTML = '<iframe width="720" height="480" src="http://www.youtube.com/embed/'+yt[2]+'?html5=1" frameborder="0" allowfullscreen></iframe>';
 				card.classList.add("youtube");
 			} else if (/^([a-z]+:)?\/\//.test(v)) {
 				if (/\.(png|gif|jpe?g|webp)$/.test(v)) {
@@ -658,7 +658,7 @@
 		var u = E.URL.parse();
 		var query = u.query;
 		var hash = E.Query.parse(u.fragment);
-		if (hash.t === undefined && query.t === undefined) {
+		if (hash[1] === undefined && query[1] === undefined) {
 			try {
 				var plain = atob(u.fragment);
 				hash = E.Query.parse(plain);
@@ -677,7 +677,7 @@
 			showWrite();
 		};
 
-		if (!(query.t || hash.t)) {
+		if (!(query[1] || hash[1])) {
 			if (window.ga) ga('send', 'event', 'Edit');
 			updateCards();
 			showOverlay();
