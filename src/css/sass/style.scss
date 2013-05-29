@@ -5,6 +5,10 @@ $box-spacing: 4px;
 @import "box/*.png";
 @include all-box-sprites;
 
+$experimental-support-for-khtml: false;
+@import "compass/css3";
+
+
 html {
 	width: 100%;
 	height: 100%;
@@ -12,7 +16,7 @@ html {
 	background: #fef;
 
 	/* Webkit (Chrome 11+) */ 
-	background: -webkit-radial-gradient(center 40%, circle farthest-corner, transparent 0%, transparent 50%, rgba(0,0,0,0.6) 100%), -webkit-linear-gradient(0deg, rgba(148,110,95,1) 0%, rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%, rgba(148,110,95,1) 100%), -webkit-radial-gradient(center 90%, circle farthest-corner, rgba(211,236,240,1) 0%, #667380 68%, #69656f 75%, #cc904b 100%);
+	@include background(radial-gradient(center 40%, circle farthest-corner, transparent 0%, transparent 50%, rgba(0,0,0,0.6) 100%), linear-gradient(0deg, rgba(148,110,95,1) 0%, rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%, rgba(148,110,95,1) 100%), radial-gradient(center 90%, circle farthest-corner, rgba(211,236,240,1) 0%, #667380 68%, #69656f 75%, #cc904b 100%));
 }
 
 #logo {
@@ -45,8 +49,8 @@ a {
 
 .pulltab {
 	padding-left: 12px;
-	-webkit-transition: 0.2s;
-	-webkit-transition-timing-function: ease-out;
+	@include transition(0.2s);
+	@include transition-timing-function(ease-out);
 }
 
 .pulltab:hover {
@@ -69,16 +73,86 @@ p {
 	overflow:hidden;
 }
 
+.open .card.youtube {
+	@include transform(translateX(-160px) scale(1) translateY(-220px) rotateX(-10deg));
+	@include transform-origin(0% 100%);
+	@include transition(0.2s);
+}
+
+.open .card.spotify {
+	@include transform(rotateX(-15deg));
+}
+
+.card {
+	text-align: center;
+	font-family: Helvetica Neue, Helvetica, sans-serif;
+	font-size: 25px;
+	color: white;
+	width: 400px;
+	height: 400px;
+
+	&.youtube {
+		position: absolute;
+		@include transform-origin(0% 100%);
+		@include transform(translateX(0px) scale(0.5) rotateZ(90deg));
+		@include transition(0.2s);
+	}
+
+	&.spotify {
+		position: absolute;
+		@include transform(rotateX(0deg));
+		@include transition(0.5s ease-in-out);
+	}
+
+	img, video, audio {
+		max-width: 400px;
+		max-height: 400px;
+	}
+
+	a {
+		color: #cdd0ff;
+	}
+
+	div {
+		display: table-cell;
+		vertical-align: middle;
+		position: relative;
+		left: 50px;
+		height: 300px;
+		width: 300px;
+		box-sizing: border-box;
+		padding: 10px 20px;
+	border-radius: 2px;
+	background:rgba(0,0,0,0.3);
+	color: white;
+	box-shadow: 1px 2px 5px -2px rgba(0,0,0,0.7);
+	border: 1px solid rgba(0,0,0,0.1);
+	text-align: center;
+//		color: black;
+//		@include background(linear-gradient(top, #fff 0px, #ccc 400px));
+	}
+}
+
+#customize-container {
+	@include perspective(800px);
+	z-index: 2000;
+	position: absolute;
+	left: 20px;
+	top: 20px;
+	width: 404px;
+	height: 514px;
+}
 #customize {
 	display: none;
 	opacity: 0;
-	-webkit-transition: 0.5s;
-	-moz-transition: 0.5s;
-	transition: 0.5;
+	@include transition(0.5s);
+	transition: 0.5s;
+	height: 514px;
+	@include perspective(800px);
 
 	position: absolute;
-	top: 20px;
-	left: 20px;
+	top: 0px;
+	left: 0px;
 	z-index: 2;
 
 	border-radius: 2px;
@@ -86,9 +160,8 @@ p {
 	color: white;
 	box-shadow: 1px 2px 10px -2px rgba(0,0,0,0.3);
 	border: 1px solid rgba(0,0,0,0.1);
-	text-align:	 center;
-	width: 340px;
-	padding: 32px;
+	text-align: center;
+	width: 404px;
 
 	h1, h2, h3, p {
 		margin: 0;
@@ -125,16 +198,18 @@ p {
 	input {
 		border-radius: 19px;
 		text-align: center;
-		width: 318px;
+		width: 95%;
 		height: 38px;
 		font-size: 18px;
 		outline: 0;
 		border: 0;
-		padding: 0;
-		-webkit-appearance: none;
+		padding: 20px;
+		box-sizing: border-box;
+		text-overflow: ellipsis;
+		@include appearance(none);
 		box-shadow: inset 1px 1px 4px rgba(0,0,0,0.3);
 
-		background: -webkit-linear-gradient(left, rgba(255,255,255,0.9) 0%, rgba(255,255,255,1) 50%, rgba(255,255,255,0.9) 100%);
+		@include background(linear-gradient(left, rgba(255,255,255,0.9) 0%, rgba(255,255,255,1) 50%, rgba(255,255,255,0.9) 100%));
 
 		&:focus {
 			box-shadow: 0px 0px 8px rgba(255, 170, 125, 0.8);
@@ -145,8 +220,37 @@ p {
 		text-align:left;
 	}
 
+	@include transform-style(preserve-3d);
+	@include transition-timing-function(ease-out);
+
+	#write-greeting {
+		position: absolute;
+		opacity: 0.999;
+		top: 0px;
+		left: 0px;
+		width: 340px;
+		height: 450px;
+		padding: 32px;
+		@include transform(rotateY(0deg));
+		@include backface-visibility(hidden);
+		@include transform-style(preserve-3d);
+		@include transition(0.5s);
+		@include transition-timing-function(cubic-bezier(0.5,0,0.5,1));
+	}
+
 	#send-greeting {
-		display: none;
+		position: absolute;
+		opacity: 0.999;
+		top: 0px;
+		left: 0px;
+		width: 340px;
+		height: 450px;
+		padding: 32px;
+		@include transform(rotateY(180deg) translateZ(0.001px));
+		@include backface-visibility(hidden);
+		@include transform-style(preserve-3d);
+		@include transition(0.5s);
+		@include transition-timing-function(cubic-bezier(0.5,0,0.5,1));
 
 		h3 {
 			margin-top:40px;
@@ -170,23 +274,12 @@ p {
 		}
 	}
 
-}
-
-#card-title {
-	text-align: center;
-	font-size: 32px;
-	font-family: Apple Chancery, Comic Sans MS, script;
-}
-	
-#card-body p {
-	text-align: center;
-	margin: 0px;
-	margin-bottom: 0.5em;
-	padding-left: 10px;
-	padding-right: 10px;
-	font-size: 24px;
-	font-style: italic;
-	font-family: Palatino Linotype, Palatino, script;
+	button {
+		position: absolute;
+		bottom: 40px;
+		left: 50%;
+		margin-left: -36px;
+	}
 }
 
 #make-your-own {
@@ -196,8 +289,7 @@ p {
 	left: 0px;
 	width: 100%;
 	text-align: center;
-	-webkit-transition: 0.5s;
-	-moz-transition: 0.5s;
+	@include transition(0.5s);
 	transition: 0.5s;
 	opacity: 0;
 	z-index: 1;
@@ -211,14 +303,14 @@ p {
 
 button {
 	background-color: transparent;
-	background-image: -webkit-linear-gradient(bottom, #836c5e 0%, #61534f 48%, #f2fbff 51%, #d3d3d7 73%, #8d8179 100%);
+	@include background(linear-gradient(bottom, #836c5e 0%, #61534f 48%, #f2fbff 51%, #d3d3d7 73%, #8d8179 100%));
 	color: rgba(0, 0, 0, 0.5);
 	font-weight: bold;
 	font-size: 40px;
 	padding: 11px 19px 13px 19px;
 	text-align: center;
 //	text-shadow: 0px 0px 1px rgba(255, 255, 255, 0.42);
-	-webkit-background-clip: padding-box;
+	@include background-clip(padding-box);
 	border-radius: 48px;
 	box-shadow: 0px 2px 8px -1px rgba(0, 0, 0, 0.74);
 	box-sizing: border-box;

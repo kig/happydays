@@ -91,27 +91,17 @@
 		box.angle = angle;
 		
 		var card = E.D3();
-		var cardWidth = 350;
+		var cardWidth = 400;
 		card.matrix = mat4();
-		card.position = vec3(-cardWidth/2,0,-50);
+		card.position = vec3(-cardWidth/2,-200,-50);
 		card.style.width = cardWidth + 'px';
 		card.style.minHeight = 250+'px';
-		card.setBg('#fff');
-		card.style.borderRadius = '5px';
-		card.style.textAlign = 'center';
-
-		var card_title = document.createElement('h1');
-		card_title.id = 'card-title';
 
 		var card_body = E(
 			'div', 
-			{id: 'card-body'},
-			E('P', {id: 'card-body1'}),
-			E('P', {id: 'card-body2'}),
-			E('P', {id: 'card-body3'})
+			{className: 'card'}
 		);
 
-		card.appendChild(card_title);
 		card.appendChild(card_body);
 
 		box.card = card;
@@ -121,11 +111,11 @@
 			var m = this.matrix;
 			mat4.identity(m);
 			if (this.up) {
-				spring(this, 0.3, vec3(-cardWidth/2, -380, -50), 1);
+				spring(this, 0.3, vec3(-cardWidth/2, -500, -50), 1);
 				vec3.scale(this.velocity, 0.8);
 				vec3.add(this.position, this.velocity);
 			} else {
-				this.position[1] += (0 - this.position[1]) * 0.25;
+				this.position[1] += (-200 - this.position[1]) * 0.25;
 			}
 			mat4.translate(m, this.position);
 			mat4.rotateX(m, Math.PI/4+this.rotation[0]);
@@ -250,11 +240,13 @@
 				}
 				if (!this.card.up && this.confettiCounter > 60) {
 					this.card.up = true;
+					this.card.classList.add('open');
 					this.stopConfetti = true;
 					this.zoomCounter = 30;
 				}
 			} else if (this.card.up) {
 				this.card.up = false;
+				this.card.classList.remove('open');
 				this.stopConfetti = false;
 				this.zoom = 1;
 				this.zoomCounter = 30;
@@ -518,10 +510,10 @@
 
 		obj.zoomLookX = 0;
 		obj.zoomLookY = 300;
-		obj.zoomLookZ = -000;
+		obj.zoomLookZ = -400;
 		obj.zoomPX = 0;
 		obj.zoomPY = 200;
-		obj.zoomPZ = 200;
+		obj.zoomPZ = -200;
 
 		if (window.dat && false) {
 			var gui = new dat.GUI();
@@ -606,19 +598,49 @@
 
 		var editMon = function(name) {
 			var obj = E.id('edit-'+name);
-			obj.onkeyup = obj.onchange = function() {
-				boxes[filledBox].querySelector('#card-'+name).textContent = this.value;
+			obj.onkeyup = function() {
+				boxes[name-1].querySelector('.card').textContent = this.value;
+				updateHash();
+			};
+			obj.onchange = function() {
+				setCardValue(name, this.value);
 				updateHash();
 			};
 		};
-		var names = 'title body1 body2 body3'.split(' ');
+		var names = '1 2 3 4 5'.split(' ');
 		names.forEach(editMon);
 
+		var setCardValue = function(name, v) {
+			var card = boxes[name-1].querySelector('.card');
+			card.innerHTML = '';
+			card.classList.remove('youtube');
+			card.classList.remove('spotify');
+			var yt = v.match(/^(https?:\/\/)?youtu.be\/([a-zA-Z0-9_-]+)/);
+			if (yt) {
+				card.innerHTML = '<iframe width="720" height="480" src="http://www.youtube.com/embed/'+yt[2]+'" frameborder="0" allowfullscreen></iframe>';
+				card.classList.add("youtube");
+			} else if (/^([a-z]+:)?\/\//.test(v)) {
+				if (/\.(png|gif|jpe?g|webp)$/.test(v)) {
+					card.append(E('img', {src: v}));
+				} else if (/\.(webm|mp4)$/.test(v)) {
+					card.append(E('video', {src: v}));
+				} else if (/\.(mp3|m4a)$/.test(v)) {
+					card.append(E('audio', {src: v}));
+				} else {
+					card.append(E.DIV(E('a', {href: v, target: "_blank"}, v)));
+				}
+			} else if (/^spotify:[a-z]+:[a-zA-Z0-9]+$/.test(v)) {
+				card.innerHTML = '<iframe src="https://embed.spotify.com/?uri='+v+'" width="300" height="380" frameborder="0" allowtransparency="true"></iframe>';
+				card.classList.add("spotify");
+			} else {
+				card.append(E.DIV(E.T(v)));
+			}
+		};
+
 		var updateCards = function() {
-			boxes[filledBox].querySelector('#card-title').appendChild(E.T(cardContent.t));
-			boxes[filledBox].querySelector('#card-body1').appendChild(E.T(cardContent.b1));
-			boxes[filledBox].querySelector('#card-body2').appendChild(E.T(cardContent.b2));
-			boxes[filledBox].querySelector('#card-body3').appendChild(E.T(cardContent.b3));
+			for (var i=1; i<=5; i++) {
+				setCardValue(i, cardContent[i]);
+			}
 		};
 
 		var enteredSomething = false;
@@ -627,10 +649,9 @@
 				if (window.ga) ga('send', 'event', 'Edit', 'Entered_Text');
 				enteredSomething = true;
 			}
-			cardContent.t = E.id('edit-title').value;
-			cardContent.b1 = E.id('edit-body1').value;
-			cardContent.b2 = E.id('edit-body2').value;
-			cardContent.b3 = E.id('edit-body3').value;
+			for (var i=1; i<=5; i++) {
+				cardContent[i] = E.id('edit-'+i).value;
+			}
 			window.shareLocation = 'http://www.poemyou.com/'+('#'+btoa(E.Query.build(cardContent)));
 		};
 
@@ -644,30 +665,16 @@
 			} catch(e) {}
 		}
 
-		var cardContent = {
-			t: hash.t || query.t || E.id('edit-title').value,
-			b1: hash.b1 || query.b1 || E.id('edit-body1').value,
-			b2: hash.b2 || query.b2 || E.id('edit-body2').value,
-			b3: hash.b3 || query.b3 || E.id('edit-body3').value
-		};
+		var cardContent = {};
+		for (var i=1; i<=5; i++) {
+			cardContent[i] = hash[i] || query[i] || E.id('edit-'+i).value;
+		}
 
 		E.id('ready').onclick = function() {
-			var t = this;
-			t.disabled = true;
-			hideOverlay(function() {
-				t.disabled = false;
-				showSend();
-				showOverlay();
-			});
+			showSend();
 		};
 		E.id('nowai').onclick = function() {
-			var t = this;
-			t.disabled = true;
-			hideOverlay(function() {
-				t.disabled = false;
-				showWrite();
-				showOverlay();
-			});
+			showWrite();
 		};
 
 		if (!(query.t || hash.t)) {
@@ -725,8 +732,8 @@
 		var c = E.id('customize');
 		E.css(c, {
 			transition: '0.3s',
-			opacity: 0,
-			left: '0px'
+			opacity: 1,
+			transform: 'rotateY(90deg)'
 		});
 		setTimeout(function() {
 			c.style.display = 'none';
@@ -743,7 +750,7 @@
 			E.css(c, {
 				transition: '0.5s',
 				opacity: 1,
-				left: '20px'
+				transform: 'rotateY(0deg)'
 			});
 		}, 200);
 		setTimeout(function() {
@@ -755,8 +762,16 @@
 
 	var showSend = function() {
 		if (window.ga) ga('send', 'event', 'Edit', 'Show_Send');
-		document.getElementById('write-greeting').style.display = 'none';
-		document.getElementById('send-greeting').style.display = 'block';
+		var c = E.id('customize');
+		E.css(c, {
+			transition: '0.5s',
+			opacity: 1,
+			transform: 'rotateY(180deg)'
+		});
+		E.css(E.id('send-greeting'), {opacity: 0.999});
+		E.css(E.id('write-greeting'), {opacity: 0});
+		//document.getElementById('write-greeting').style.display = 'none';
+		//document.getElementById('send-greeting').style.display = 'block';
 		window.updateHash();
 
 		var u = window.shareLocation;
@@ -789,8 +804,16 @@
 
 	var showWrite = function() {
 		if (window.ga) ga('send', 'event', 'Edit', 'Show_Write');
-		document.getElementById('write-greeting').style.display = 'block';
-		document.getElementById('send-greeting').style.display = 'none';
+		var c = E.id('customize');
+		E.css(c, {
+			transition: '0.5s',
+			opacity: 1,
+			transform: 'rotateY(0deg)'
+		});
+		E.css(E.id('write-greeting'), {opacity: 0.999});
+		E.css(E.id('send-greeting'), {opacity: 0});
+		//document.getElementById('write-greeting').style.display = 'block';
+		//document.getElementById('send-greeting').style.display = 'none';
 		E.id('share-buttons').innerHtml = '';
 	};
 
