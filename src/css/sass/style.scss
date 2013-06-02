@@ -73,14 +73,32 @@ p {
 	overflow:hidden;
 }
 
+.open .card {
+	@include transform(scale(1));
+	@include transition(0.5s);
+	opacity: 1;
+}
+
 .open .card.youtube {
 	@include transform(translateX(-160px) scale(1) translateY(-220px) rotateX(-10deg));
 	@include transform-origin(0% 100%);
 	@include transition(0.2s);
 }
 
+.open .card.vimeo {
+	@include transform(translateX(-160px) scale(1) translateY(-220px) rotateX(-10deg));
+	@include transform-origin(0% 100%);
+	@include transition(0.2s);
+}
+
 .open .card.spotify {
-	@include transform(rotateX(-15deg));
+	@include transform(translateY(0px) scale(1) rotateX(-15deg));
+}
+
+.open .card.pinterest {
+	@include transform(scale(1) translateY(-220px) rotateX(-10deg));
+	@include transform-origin(0% 100%);
+	@include transition(0.2s);
 }
 
 .card {
@@ -90,18 +108,17 @@ p {
 	color: white;
 	width: 400px;
 	height: 400px;
+	opacity: 0.5;
+	@include transform(translateY(50px) scale(0.6) rotateX(25deg));
 
-	&.youtube {
-		position: absolute;
+	&.youtube, &.vimeo {
 		@include transform-origin(0% 100%);
 		@include transform(translateX(0px) scale(0.5) rotateZ(90deg));
 		@include transition(0.2s);
 	}
 
 	&.spotify {
-		position: absolute;
-		@include transform(rotateX(0deg));
-		@include transition(0.5s ease-in-out);
+		@include transform(translateY(50px) scale(0.6) rotateX(25deg));
 	}
 
 	img, video, audio {

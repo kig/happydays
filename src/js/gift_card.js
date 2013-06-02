@@ -409,13 +409,17 @@
 		var world = E.D3();
 		document.body.appendChild(world);
 		world.setTransform(mat4());
+		world.setPerspective(1200);
 		var boxVec = vec3(0, 0, 0);
 		var resize = function() {
 			var html = document.body.parentNode;
 			var w = Math.min(window.innerWidth, html.clientWidth);
 			var h = Math.min(window.innerHeight, html.clientHeight);
 			world.setSz(w, h);
-			world.setPerspective(h);
+			var scale = Math.min(w/1600, h/1200);
+			world.scale[0] = world.scale[1] = world.scale[2] = scale;
+			world.position[2] = -1200;
+			world.update();
 			world.width = w;
 			world.height = h;
 			var v = boxVec;
@@ -425,7 +429,6 @@
 		window.addEventListener('resize', resize, false);
 		resize();
 		world.update();
-		E.css(world, 'transform', 'translateZ(-1000px)');
 		
 		var camera = E.D3();
 		camera.setTransform(mat4()); 
@@ -615,10 +618,30 @@
 			card.innerHTML = '';
 			card.classList.remove('youtube');
 			card.classList.remove('spotify');
-			var yt = v.match(/^(https?:\/\/)?youtu.be\/([a-zA-Z0-9_-]+)/);
+			card.classList.remove('pinterest');
+			card.classList.remove('vimeo');
+			var yt = v.match(/^(https?:\/\/)?(www\.)?(youtu\.be\/|youtube\.com\/watch(\/|\/?(\?v=)?))([a-zA-Z0-9_-]+)/);
+			var vimeo = v.match(/^(https?:\/\/)?((www\.)?vimeo\.com)\/([a-zA-Z0-9_-]+)/);
+			var pinterest = v.match(/^(https?:\/\/)?((www\.)?pinterest\.com)\/pin\/([0-9]+)\/?$/);
 			if (yt) {
-				card.innerHTML = '<iframe width="720" height="480" src="http://www.youtube.com/embed/'+yt[2]+'?html5=1" frameborder="0" allowfullscreen></iframe>';
+				card.innerHTML = '<iframe width="720" height="480" src="http://www.youtube.com/embed/'+encodeURIComponent(yt[6])+'?html5=1" frameborder="0" allowfullscreen></iframe>';
 				card.classList.add("youtube");
+			} else if (vimeo) {
+				card.innerHTML = '<iframe width="720" height="480" src="http://player.vimeo.com/video/'+encodeURIComponent(vimeo[4])+'?html5=1" frameborder="0" allowfullscreen></iframe>';
+				card.classList.add("vimeo");
+			} else if (/^spotify:[a-z]+:[a-zA-Z0-9]+$/.test(v) || /^http:\/\/open\.spotify\.com\/[a-z]+\/[a-zA-Z0-9]+$/.test(v)) {
+				var url = v.match(/\/([a-z]+)\/([a-zA-Z0-9]+)$/);
+				if (url) {
+					v = "spotify:"+url[1]+":"+url[2];
+				}
+				card.innerHTML = '<iframe src="https://embed.spotify.com/?uri='+encodeURIComponent(v)+'" width="300" height="380" frameborder="0" allowtransparency="true"></iframe>';
+				card.classList.add("spotify");
+			} else if (pinterest) {
+				var a = E('a', {"href": v});
+				a.setAttribute('data-pin-do', 'embedPin');
+				card.append(a);
+				card.classList.add('pinterest');
+				E.loadScript('//assets.pinterest.com/js/pinit.js', 'pinterest');
 			} else if (/^([a-z]+:)?\/\//.test(v)) {
 				if (/\.(png|gif|jpe?g|webp)$/.test(v)) {
 					card.append(E('img', {src: v}));
@@ -629,9 +652,6 @@
 				} else {
 					card.append(E.DIV(E('a', {href: v, target: "_blank"}, v)));
 				}
-			} else if (/^spotify:[a-z]+:[a-zA-Z0-9]+$/.test(v)) {
-				card.innerHTML = '<iframe src="https://embed.spotify.com/?uri='+v+'" width="300" height="380" frameborder="0" allowtransparency="true"></iframe>';
-				card.classList.add("spotify");
 			} else {
 				card.append(E.DIV(E.T(v)));
 			}
@@ -677,7 +697,7 @@
 			showWrite();
 		};
 
-		if (!(query[1] || hash[1])) {
+		if (window.location.search.match(/^\?new/)) {
 			if (window.ga) ga('send', 'event', 'Edit');
 			updateCards();
 			showOverlay();
