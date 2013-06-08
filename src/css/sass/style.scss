@@ -73,6 +73,10 @@ p {
 	overflow:hidden;
 }
 
+iframe {
+	border: 0;
+}
+
 .open .card {
 	@include transform(scale(1));
 	@include transition(0.5s);
@@ -101,6 +105,12 @@ p {
 	@include transition(0.2s);
 }
 
+.open .card.soundcloud {
+	@include transform(scale(1) translateY(-220px) rotateX(-15deg));
+	@include transform-origin(0% 100%);
+	@include transition(0.2s);
+}
+
 .card {
 	text-align: center;
 	font-family: Helvetica Neue, Helvetica, sans-serif;
@@ -119,6 +129,10 @@ p {
 
 	&.spotify {
 		@include transform(translateY(50px) scale(0.6) rotateX(25deg));
+	}
+
+	&.soundcloud {
+		@include transform(translateY(50px) scale(0.4) rotateX(25deg));
 	}
 
 	img, video, audio {

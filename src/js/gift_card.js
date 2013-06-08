@@ -43,7 +43,7 @@
 		return wall;
 	};
 
-	var IsSlow = navigator.userAgent.match(/mobile/i);
+	var IsSlow = true || navigator.userAgent.match(/mobile/i);
 
 	var makeConfetti = function(box) {
 		var confetti = E.D3();
@@ -620,9 +620,13 @@
 			card.classList.remove('spotify');
 			card.classList.remove('pinterest');
 			card.classList.remove('vimeo');
+			card.classList.remove('soundcloud');
 			var yt = v.match(/^(https?:\/\/)?(www\.)?(youtu\.be\/|youtube\.com\/watch(\/|\/?(\?v=)?))([a-zA-Z0-9_-]+)/);
 			var vimeo = v.match(/^(https?:\/\/)?((www\.)?vimeo\.com)\/([a-zA-Z0-9_-]+)/);
 			var pinterest = v.match(/^(https?:\/\/)?((www\.)?pinterest\.com)\/pin\/([0-9]+)\/?$/);
+			var soundcloud = v.match(/^(https?:\/\/)?((www\.)?soundcloud\.com)\//);
+			var twitter = v.match(/^(https?:\/\/)?((www\.)?twitter\.com)\//);
+			var skfbly = v.match(/^(https?:\/\/)?skfb.ly\//);
 			if (yt) {
 				card.innerHTML = '<iframe width="720" height="480" src="http://www.youtube.com/embed/'+encodeURIComponent(yt[6])+'?html5=1" frameborder="0" allowfullscreen></iframe>';
 				card.classList.add("youtube");
@@ -642,6 +646,16 @@
 				card.append(a);
 				card.classList.add('pinterest');
 				E.loadScript('//assets.pinterest.com/js/pinit.js', 'pinterest');
+			} else if (soundcloud) {
+				card.append(E('iframe', {src:"https://w.soundcloud.com/player/?url="+encodeURIComponent(v), width:360, height:450, frameborder:0, border:0, allowtransparency:true}));
+				card.classList.add('soundcloud');
+			} else if (twitter) {
+				card.append(E('blockquote', {className: 'twitter-tweet', width:350}, E('a', {href:v})));
+				E.loadScript('//platform.twitter.com/widgets.js', 'twitter');
+				card.classList.add('soundcloud');
+			} else if (skfbly) {
+				card.append(E('iframe', {src:v+"?autostart=0&transparent=0&autospin=0.2&controls=1", width:720, height:480, frameborder:0, border:0, allowtransparency:true}));
+				card.classList.add('youtube');
 			} else if (/^([a-z]+:)?\/\//.test(v)) {
 				if (/\.(png|gif|jpe?g|webp)$/.test(v)) {
 					card.append(E('img', {src: v}));
@@ -749,7 +763,7 @@
 	}, false);
 
 	var hideOverlay = function(callback) {
-		var c = E.id('customize');
+		var c = E.id('customize-container');
 		E.css(c, {
 			transition: '0.3s',
 			opacity: 1,
@@ -764,7 +778,7 @@
 	};
 
 	var showOverlay = function(callback) {
-		var c = E.id('customize');
+		var c = E.id('customize-container');
 		c.style.display = 'block';
 		setTimeout(function() {
 			E.css(c, {
