@@ -711,7 +711,7 @@
 			showWrite();
 		};
 
-		if (window.location.search.match(/^\?new/)) {
+		if (false) {
 			if (window.ga) ga('send', 'event', 'Edit');
 			updateCards();
 			showOverlay();
@@ -720,7 +720,8 @@
 			if (window.ga) ga('send', 'event', 'View');
 			updateCards();
 			hideOverlay();
-			E.id('make-your-own').style.display = 'block';
+			//E.id('make-your-own').style.display = 'block';
+			/*
 			boxes.forEach(function(box){
 				box.addEventListener('click', function() {
 					setTimeout(function() {
@@ -730,6 +731,7 @@
 					}, 4000);
 				}, false);
 			});
+			 */
 		}
 
 		if (window.performance) {
