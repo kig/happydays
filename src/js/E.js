@@ -1111,7 +1111,7 @@ if (typeof mat4 !== 'undefined') {
 		},
 		
 		setPerspective : function(p) {
-			E.css(this, 'perspective', (typeof p === 'number') ? (p + 'px') : p);
+			E.css(this, 'perspective', (typeof p === 'number') ? (p) : p);
 		},
 		
 		setOrigin : function(x, y) {
