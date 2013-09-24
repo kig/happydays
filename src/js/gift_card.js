@@ -342,8 +342,8 @@
 		var clouds = [];
 		var cloud;
 		var midAngle = (Math.PI * 0.8);
-		for (var i=-16; i<16; i+=0.5) {
-			if (i == -8) {
+		for (var i=-16; i<=16; i+=0.5) {
+			if (i === -8) {
 				i=8;
 			}
 			cloud = E.makeQuad(64, 64, '-webkit-radial-gradient(center, ellipse contain,rgba(12,24,28,0.1) 0%, rgba(212,244,248,0.3) 50%, rgba(255,255,255,0) 95%)');
@@ -360,7 +360,7 @@
 					this.scaleX = 18+Math.random()*5;
 					this.scaleY = 24+Math.random()*5;
 					this.c = 0;
-					cloud.speed = 0.9+Math.random()*3;
+					this.speed = 0.8+Math.random()*0.4;
 				}
 				this.style.opacity = Math.pow(-Math.cos(this.c/100*Math.PI*2)*0.5+0.5, 0.5)*0.3;
 				var x = Math.sin(this.angle) * this.r;
@@ -452,8 +452,8 @@
 
 		var id = 0;
 		var currentBox = 0;
-		for (var j=-1; j<=1; j++) {
-			for (var k=0; k<3; k++) {
+		for (var j=0; j<=0; j++) {
+			for (var k=1; k<2; k++) {
 				if (
 					(k === 0 && j === -1) ||
 						(k===0 && j === 1) ||
@@ -601,14 +601,16 @@
 
 		var editMon = function(name) {
 			var obj = E.id('edit-'+name);
-			obj.onkeyup = function() {
-				boxes[name-1].querySelector('.card').textContent = this.value;
-				updateHash();
-			};
-			obj.onchange = function() {
-				setCardValue(name, this.value);
-				updateHash();
-			};
+			if (obj) {
+				obj.onkeyup = function() {
+					boxes[name-1].querySelector('.card').textContent = this.value;
+					updateHash();
+				};
+				obj.onchange = function() {
+					setCardValue(name, this.value);
+					updateHash();
+				};
+			}
 		};
 		var names = '1 2 3 4 5'.split(' ');
 		names.forEach(editMon);
@@ -647,7 +649,7 @@
 				card.classList.add('pinterest');
 				E.loadScript('//assets.pinterest.com/js/pinit.js', 'pinterest');
 			} else if (soundcloud) {
-				card.append(E('iframe', {src:"https://w.soundcloud.com/player/?url="+encodeURIComponent(v), width:360, height:450, frameborder:0, border:0, allowtransparency:true}));
+				card.append(E('iframe', {src:"https://w.soundcloud.com/player/?url="+encodeURIComponent(v), width:320, height:400, frameborder:0, border:0, allowtransparency:true}));
 				card.classList.add('soundcloud');
 			} else if (twitter) {
 				card.append(E('blockquote', {className: 'twitter-tweet', width:350}, E('a', {href:v})));
@@ -672,7 +674,7 @@
 		};
 
 		var updateCards = function() {
-			for (var i=1; i<=5; i++) {
+			for (var i=1; i<=1; i++) {
 				setCardValue(i, cardContent[i]);
 			}
 		};
@@ -683,7 +685,7 @@
 				if (window.ga) ga('send', 'event', 'Edit', 'Entered_Text');
 				enteredSomething = true;
 			}
-			for (var i=1; i<=5; i++) {
+			for (var i=1; i<=1; i++) {
 				cardContent[i] = E.id('edit-'+i).value;
 			}
 			window.shareLocation = 'http://www.poemyou.com/'+('#'+btoa(E.Query.build(cardContent)));
@@ -700,7 +702,7 @@
 		}
 
 		var cardContent = {};
-		for (var i=1; i<=5; i++) {
+		for (var i=1; i<=1; i++) {
 			cardContent[i] = hash[i] || query[i] || E.id('edit-'+i).value;
 		}
 
