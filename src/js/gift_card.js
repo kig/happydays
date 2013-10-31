@@ -12,7 +12,7 @@
 	};
 
 	var makeGround = function(x, z) {
-		var wall = E.makeQuad(800, 800, 'url(images/ground2.png)');
+		var wall = E.makeQuad(800, 800, 'url(images/ground2.png) 0px 0px / 100% 100%');
 		var m = mat4.identity();
 		mat4.translate(m, vec3(x, 0, z));
 		mat4.rotateX(m, Math.PI/2);
@@ -635,10 +635,10 @@
 			} else if (vimeo) {
 				card.innerHTML = '<iframe width="720" height="480" src="http://player.vimeo.com/video/'+encodeURIComponent(vimeo[4])+'?html5=1" frameborder="0" allowfullscreen></iframe>';
 				card.classList.add("vimeo");
-			} else if (/^spotify:[a-z]+:[a-zA-Z0-9]+$/.test(v) || /^http:\/\/open\.spotify\.com\/[a-z]+\/[a-zA-Z0-9]+$/.test(v)) {
-				var url = v.match(/\/([a-z]+)\/([a-zA-Z0-9]+)$/);
+			} else if (/^spotify:\S+$/.test(v) || /^http:\/\/open\.spotify\.com\/.+$/.test(v)) {
+				var url = v.match(/spotify\.com\/(.+)$/);
 				if (url) {
-					v = "spotify:"+url[1]+":"+url[2];
+					v = "spotify:"+url[1].replace(/\//g, ':');
 				}
 				card.innerHTML = '<iframe src="https://embed.spotify.com/?uri='+encodeURIComponent(v)+'" width="300" height="380" frameborder="0" allowtransparency="true"></iframe>';
 				card.classList.add("spotify");

@@ -1,7 +1,7 @@
 
 @import "compass/utilities/sprites";
 
-$box-spacing: 4px;
+$box-spacing: 8px;
 @import "box/*.png";
 @include all-box-sprites;
 
